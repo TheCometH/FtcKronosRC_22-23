@@ -17,11 +17,14 @@ import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 
 import java.util.Arrays;
 
-@com.qualcomm.robotcore.eventloop.opmode.TeleOp
-public class TeleOp extends LinearOpMode {
+@com.qualcomm.robotcore.eventloop.opmode.TeleOp(name = "polkioplkioplk")
+public class TeleOpp extends LinearOpMode {
     private DcMotorEx leftFront, leftRear, rightRear, rightFront;
     private DcMotorEx expansion, traverse, rotation;
     private Servo tilt, clamp;
+
+    private int positionRotation = 0;
+    private int positionExpansion= 0;
 
     HardwareMap hwMap = null;
 
@@ -58,13 +61,13 @@ public class TeleOp extends LinearOpMode {
         rotation.setPower(0);
         traverse.setPower(0);
 
-        /*leftFront.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        leftRear.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        rightFront.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        rightRear.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+//        leftFront.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+//        leftRear.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+//        rightFront.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+//        rightRear.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         expansion.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         rotation.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        traverse.setMode(DcMotor.RunMode.RUN_USING_ENCODER);*/
+//        traverse.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         leftFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         leftRear.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -143,16 +146,16 @@ public class TeleOp extends LinearOpMode {
 
 
             if(gamepad2.right_stick_y > 0.4) {
-                expand(-0.1);
+                expand(-10);
             }
             if(gamepad2.right_stick_y < -0.4) {
-                expand(0.1);
+                expand(10);
             }
             if(gamepad2.left_stick_y > 0.4) {
-                rotate(1);
+                rotate(10);
             }
             if(gamepad2.left_stick_y < -0.4) {
-                rotate(-1);
+                rotate(-10);
             }
 
 
@@ -190,12 +193,14 @@ public class TeleOp extends LinearOpMode {
 
     }
 
-    public void rotate(double power){
-        rotation.setPower(power);
+    public void rotate(int power){
+        rotation.setTargetPosition(power + positionRotation);
+        positionRotation += power;
     }
 
-    public void expand(double power){
-        expansion.setPower(power);
+    public void expand(int power){
+        expansion.setTargetPosition(positionExpansion + power);
+        positionExpansion += power;
     }
 
     public void openClaw() {
