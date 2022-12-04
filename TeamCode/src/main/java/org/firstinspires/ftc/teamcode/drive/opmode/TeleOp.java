@@ -158,10 +158,10 @@ public class TeleOp extends LinearOpMode {
 
 
             if(gamepad2.right_stick_y > 0.4) {
-                expand(0.05, 72);
+                expand(0.5, 72);
             }
             if(gamepad2.right_stick_y < -0.4) {
-                expand(-0.05, -72);
+                expand(-0.5, -72);
             }
             if(gamepad2.left_stick_y > 0.4) {
                 rotate(0.5, 72);
@@ -200,7 +200,9 @@ public class TeleOp extends LinearOpMode {
 q
 
     public void tiltNow(double distance) {
-        tiltPosition = tilt.getPosition() + distance;
+        tiltPosition = tiltPosition + distance;
+        telemetry.addData("tiltPosition: ", tiltPosition);
+        telemetry.update();
         tilt.setPosition(tiltPosition);
     }
 
