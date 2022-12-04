@@ -25,9 +25,9 @@ public class TeleOp extends LinearOpMode {
 
 
 
-    private Double positionExpansion = 0.0;
-    private Double positionRotation = 0.0;
-    private Double tiltPosition = 0.0;
+    private Double positionExpansion = 0d;
+    private Double positionRotation = 0d;
+    private Float tiltPosition = new Float(0);
 
 
     HardwareMap hwMap = null;
@@ -172,11 +172,11 @@ public class TeleOp extends LinearOpMode {
 
 
             if (gamepad2.left_bumper) {
-                tiltNow(0.1);
+                tiltNow(0.01);
                 telemetry.addLine("tilt", tilt.getPosition());
             }
             if (gamepad2.right_bumper) {
-                tiltNow(-0.1);
+                tiltNow(-0.01);
                 telemetry.addLine("tilt", tilt.getPosition());
 
             }
