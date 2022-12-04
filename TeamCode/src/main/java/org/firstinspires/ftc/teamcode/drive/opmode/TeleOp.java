@@ -17,11 +17,16 @@ import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 
 import java.util.Arrays;
 
-@com.qualcomm.robotcore.eventloop.opmode.TeleOp
+@com.qualcomm.robotcore.eventloop.opmode.TeleOp(name = "polkioplkioplk")
 public class TeleOp extends LinearOpMode {
     private DcMotorEx leftFront, leftRear, rightRear, rightFront;
     private DcMotorEx expansion, traverse, rotation;
     private Servo tilt, clamp;
+
+    private int positionRotation = 0;
+    private int positionExpansion= 0;
+
+    private int tiltPosition = 0;
 
     HardwareMap hwMap = null;
 
@@ -39,10 +44,14 @@ public class TeleOp extends LinearOpMode {
         tilt = hardwareMap.get(Servo.class, "tilt");
         clamp = hardwareMap.get(Servo.class, "clamp");
 
-        leftFront.setDirection(DcMotorSimple.Direction.FORWARD);
-        leftRear.setDirection(DcMotorSimple.Direction.FORWARD);
-        rightFront.setDirection(DcMotorSimple.Direction.REVERSE);
-        rightRear.setDirection(DcMotorSimple.Direction.REVERSE);
+        tilt.setPosition(tiltPosition);
+        clamp.setPosition(0);
+
+
+        leftFront.setDirection(DcMotorSimple.Direction.REVERSE);
+        leftRear.setDirection(DcMotorSimple.Direction.REVERSE);
+        rightFront.setDirection(DcMotorSimple.Direction.FORWARD);
+        rightRear.setDirection(DcMotorSimple.Direction.FORWARD);
 
         expansion.setDirection(DcMotorSimple.Direction.FORWARD);
         rotation.setDirection(DcMotorSimple.Direction.FORWARD);
@@ -58,13 +67,13 @@ public class TeleOp extends LinearOpMode {
         rotation.setPower(0);
         traverse.setPower(0);
 
-        /*leftFront.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        leftRear.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        rightFront.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        rightRear.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+//        leftFront.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+//        leftRear.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+//        rightFront.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+//        rightRear.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         expansion.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
         rotation.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        traverse.setMode(DcMotor.RunMode.RUN_USING_ENCODER);*/
+//        traverse.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
         leftFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         leftRear.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -143,24 +152,26 @@ public class TeleOp extends LinearOpMode {
 
 
             if(gamepad2.right_stick_y > 0.4) {
-                expand(-0.1);
+                expand(-10);
             }
             if(gamepad2.right_stick_y < -0.4) {
-                expand(0.1);
+                expand(10);
             }
             if(gamepad2.left_stick_y > 0.4) {
-                rotate(1);
+                rotate(10);
             }
             if(gamepad2.left_stick_y < -0.4) {
-                rotate(-1);
+                rotate(-10);
             }
 
 
             if (gamepad2.left_bumper) {
-                tiltNow(0.2);
+                tiltNow(0.1 + tiltPosition);
+                tiltPosition += 0.1;
             }
             if (gamepad2.right_bumper) {
-                tiltNow(-0.2);
+                tiltNow(-0.1 + tiltPosition);
+                tiltPosition += -0.1;
             }
 
 
@@ -190,12 +201,14 @@ public class TeleOp extends LinearOpMode {
 
     }
 
-    public void rotate(double power){
-        rotation.setPower(power);
+    public void rotate(int power){
+        rotation.setTargetPosition(power + positionRotation);
+        positionRotation += power;
     }
 
-    public void expand(double power){
-        expansion.setPower(power);
+    public void expand(int power){
+        expansion.setTargetPosition(positionExpansion + power);
+        positionExpansion += power;
     }
 
     public void openClaw() {
@@ -215,9 +228,9 @@ public class TeleOp extends LinearOpMode {
 
     public void sides(double power){
         rightFront.setPower(-power);
-        leftRear.setPower(power);
+        leftRear.setPower(-power);
         rightRear.setPower(power);
-        leftFront.setPower(-power);
+        leftFront.setPower(power);
     }
 
     public void turning(double power){
