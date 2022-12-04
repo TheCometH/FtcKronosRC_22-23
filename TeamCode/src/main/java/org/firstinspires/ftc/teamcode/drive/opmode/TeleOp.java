@@ -27,7 +27,7 @@ public class TeleOp extends LinearOpMode {
 
     private Double positionExpansion = 0.0;
     private Double positionRotation = 0.0;
-    private double tiltPosition = 0;
+    private Double tiltPosition = 0.0;
 
 
     HardwareMap hwMap = null;
@@ -46,7 +46,7 @@ public class TeleOp extends LinearOpMode {
         tilt = hardwareMap.get(Servo.class, "tilt");
         clamp = hardwareMap.get(Servo.class, "clamp");
 
-        tilt.setPosition(tiltPosition);
+        tilt.setPosition(0);
         clamp.setPosition(0);
 
 
@@ -194,6 +194,7 @@ public class TeleOp extends LinearOpMode {
             }
 
             telemetry.addData("direction", direction);
+            telemetry.addData("tiltPosition: ", tiltPosition);
             telemetry.update();
         }
     }
