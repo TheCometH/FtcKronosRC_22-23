@@ -207,7 +207,17 @@ public class TeleOp extends LinearOpMode {
 
 
     public void rotate(Double power, int targetPosition) {
-        if (Math.abs(positionRotation) < 1440) {
+        if (positionRotation < 1170 && positionRotation > -1) {
+            rotation.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            rotation.setTargetPosition(targetPosition);
+            rotation.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            rotation.setPower(power);
+
+            positionRotation += targetPosition;
+
+        }
+
+        else if (positionRotation >= 1170 && targetPosition < 0) {
             rotation.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
             rotation.setTargetPosition(targetPosition);
             rotation.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -219,46 +229,56 @@ public class TeleOp extends LinearOpMode {
 
     }
 
-        public void expand(Double power, int targetPosition){
-            if (Math.abs(positionExpansion) < 1440) {
-                expansion.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-                expansion.setTargetPosition(targetPosition);
-                expansion.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-                expansion.setPower(power);
-                positionExpansion += targetPosition;
-            }
+    public void expand(Double power, int targetPosition){
+        if (positionExpansion < 1440 && positionExpansion > -1) {
+            expansion.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            expansion.setTargetPosition(targetPosition);
+            expansion.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            expansion.setPower(power);
+            positionExpansion += targetPosition;
         }
+        else if (positionExpansion >= 1440 && targetPosition < 0){
+
+            expansion.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+            expansion.setTargetPosition(targetPosition);
+            expansion.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+            expansion.setPower(power);
+            positionExpansion += targetPosition;
+
+        }
+
+    }
     public void closeClaw() {
         clamp.setPosition(0);
 
     }
 
-        public void openClaw() {
-            clamp.setPosition(1);
-        }
-
-        public void traversing(double power) {
-            traverse.setPower(power);
-        }
-
-        public void move(double power){
-            rightFront.setPower(power);
-            rightRear.setPower(power);
-            leftRear.setPower(power);
-            leftFront.setPower(power);
-        }
-
-        public void sides(double power){
-            rightFront.setPower(-power);
-            leftRear.setPower(-power);
-            rightRear.setPower(power);
-            leftFront.setPower(power);
-        }
-
-        public void turning(double power){
-            rightFront.setPower(power);
-            rightRear.setPower(power);
-            leftFront.setPower(-power);
-            leftRear.setPower(-power);
-        }
+    public void openClaw() {
+        clamp.setPosition(1);
     }
+
+    public void traversing(double power) {
+        traverse.setPower(power);
+    }
+
+    public void move(double power){
+        rightFront.setPower(power);
+        rightRear.setPower(power);
+        leftRear.setPower(power);
+        leftFront.setPower(power);
+    }
+
+    public void sides(double power){
+        rightFront.setPower(-power);
+        leftRear.setPower(-power);
+        rightRear.setPower(power);
+        leftFront.setPower(power);
+    }
+
+    public void turning(double power){
+        rightFront.setPower(power);
+        rightRear.setPower(power);
+        leftFront.setPower(-power);
+        leftRear.setPower(-power);
+    }
+}
