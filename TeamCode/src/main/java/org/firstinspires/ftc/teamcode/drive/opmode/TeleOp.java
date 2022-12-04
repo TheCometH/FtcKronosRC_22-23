@@ -26,6 +26,8 @@ public class TeleOpp extends LinearOpMode {
     private int positionRotation = 0;
     private int positionExpansion= 0;
 
+    private int tiltPosition = 0;
+
     HardwareMap hwMap = null;
 
     public void init(HardwareMap hardwareMap) {
@@ -42,8 +44,9 @@ public class TeleOpp extends LinearOpMode {
         tilt = hardwareMap.get(Servo.class, "tilt");
         clamp = hardwareMap.get(Servo.class, "clamp");
 
-        tilt.setPosition(0);
+        tilt.setPosition(tiltPosition);
         clamp.setPosition(0);
+
 
         leftFront.setDirection(DcMotorSimple.Direction.FORWARD);
         leftRear.setDirection(DcMotorSimple.Direction.FORWARD);
@@ -163,10 +166,12 @@ public class TeleOpp extends LinearOpMode {
 
 
             if (gamepad2.left_bumper) {
-                tiltNow(0.2);
+                tiltNow(0.1 + tiltPosition);
+                tiltPosition += 0.1;
             }
             if (gamepad2.right_bumper) {
-                tiltNow(-0.2);
+                tiltNow(-0.1 + tiltPosition);
+                tiltPosition += -0.1;
             }
 
 
