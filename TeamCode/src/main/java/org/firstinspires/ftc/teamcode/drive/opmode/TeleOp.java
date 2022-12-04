@@ -18,7 +18,7 @@ import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 import java.util.Arrays;
 
 @com.qualcomm.robotcore.eventloop.opmode.TeleOp(name = "polkioplkioplk")
-public class TeleOpp extends LinearOpMode {
+public class TeleOp extends LinearOpMode {
     private DcMotorEx leftFront, leftRear, rightRear, rightFront;
     private DcMotorEx expansion, traverse, rotation;
     private Servo tilt, clamp;
@@ -48,10 +48,10 @@ public class TeleOpp extends LinearOpMode {
         clamp.setPosition(0);
 
 
-        leftFront.setDirection(DcMotorSimple.Direction.FORWARD);
-        leftRear.setDirection(DcMotorSimple.Direction.FORWARD);
-        rightFront.setDirection(DcMotorSimple.Direction.REVERSE);
-        rightRear.setDirection(DcMotorSimple.Direction.REVERSE);
+        leftFront.setDirection(DcMotorSimple.Direction.REVERSE);
+        leftRear.setDirection(DcMotorSimple.Direction.REVERSE);
+        rightFront.setDirection(DcMotorSimple.Direction.FORWARD);
+        rightRear.setDirection(DcMotorSimple.Direction.FORWARD);
 
         expansion.setDirection(DcMotorSimple.Direction.FORWARD);
         rotation.setDirection(DcMotorSimple.Direction.FORWARD);
@@ -228,9 +228,9 @@ public class TeleOpp extends LinearOpMode {
 
     public void sides(double power){
         rightFront.setPower(-power);
-        leftRear.setPower(power);
+        leftRear.setPower(-power);
         rightRear.setPower(power);
-        leftFront.setPower(-power);
+        leftFront.setPower(power);
     }
 
     public void turning(double power){
