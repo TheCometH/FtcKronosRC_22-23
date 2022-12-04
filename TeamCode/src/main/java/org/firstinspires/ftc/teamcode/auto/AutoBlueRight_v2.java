@@ -5,6 +5,7 @@ import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.auto.cameradetection.CameraDetection;
@@ -26,13 +27,21 @@ public class AutoBlueRight_v2 extends LinearOpMode {
         //Calls SampleMecanumDrive to initialize the motors and use the methods.
         SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
 
-        //Creates                       initial position of the robot based on the back of the robot
+        //Creates initial position of the robot based on the back of the robot
         Pose2d startPose = new Pose2d(-72, -36, Math.toRadians(0));
         drive.setPoseEstimate(startPose);
 
+        Trajectory initTraj = drive.trajectoryBuilder(new Pose2d())
+                .forward(3)
+                .build();
+
+        Trajectory cameraTraj = drive.trajectoryBuilder(new Pose2d())
+                .forward(9)
+                .build();
+
         //Moves forward and turns 90 degrees clockwise to the position
         Trajectory traj1 = drive.trajectoryBuilder(new Pose2d())
-                .forward(48)
+                .forward(36)
                 .splineTo(new Vector2d(-21, -36), Math.toRadians(-90))
                 .build();
 
@@ -72,7 +81,13 @@ public class AutoBlueRight_v2 extends LinearOpMode {
         }
 
 
-        //Camera Code
+        drive.followTrajectory(initTraj);
+        //drive.rotate(0.1, 1);
+
+
+        drive.followTrajectory(cameraTraj);
+        sleep(3000);
+
 
         //Goes to -21, -36, turning 90 degrees clockwise
         drive.followTrajectory(traj1);
@@ -99,6 +114,7 @@ public class AutoBlueRight_v2 extends LinearOpMode {
         //drop cone on short junction
         //rotate arm -135 degrees
         //grab cone
+
         drive.followTrajectory(traj3);
         //drive.traversing(0.1, 1);
         //drive.expand(0.1, 1);
@@ -108,6 +124,7 @@ public class AutoBlueRight_v2 extends LinearOpMode {
         //drive.traversing(0.1, -1);
         //drive.expand(0.1, -1);
         //drop on tall junction
+
         //park``
         drive.followTrajectory(traj4);
         //drive.expand(0.1, 1);
