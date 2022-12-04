@@ -173,13 +173,13 @@ public class TeleOp extends LinearOpMode {
 
             if (gamepad2.left_bumper) {
                 tiltNow(0.1);
-
+                telemetry.addLine("tilt", tilt.getPosition());
             }
             if (gamepad2.right_bumper) {
                 tiltNow(-0.1);
+                telemetry.addLine("tilt", tilt.getPosition());
 
             }
-
 
             if (direction.isEmpty() && isPivoting == false && isArm == false) {
                 leftFront.setPower(0);
@@ -197,7 +197,7 @@ public class TeleOp extends LinearOpMode {
             telemetry.update();
         }
     }
-
+q
 
     public void tiltNow(double distance) {
         tiltPosition = tilt.getPosition() + distance;
