@@ -129,6 +129,8 @@ public class IncrediblyStupidUWUmaybework extends LinearOpMode {
                 move(-gamepad1.left_stick_y);
             } else{
                 move(lastmoveval);
+                lastmoveval = 0f;
+
             }
 
             if (gamepad1.left_stick_x != 0) {
@@ -137,6 +139,8 @@ public class IncrediblyStupidUWUmaybework extends LinearOpMode {
                 sides(-gamepad1.left_stick_x);
             } else{
                 move(lasthorizval);
+                lasthorizval = 0f;
+
             }
 
             if (gamepad1.right_stick_x != 0) {
@@ -144,6 +148,7 @@ public class IncrediblyStupidUWUmaybework extends LinearOpMode {
                 turning(gamepad1.right_stick_x);
             }else{
                 move(lastturnval);
+                lastturnval = 0f;
             }
 
 
