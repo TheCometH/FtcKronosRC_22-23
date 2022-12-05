@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
+import org.opencv.core.Mat;
 
 import java.util.Arrays;
 
@@ -25,9 +26,11 @@ public class TeleOp extends LinearOpMode {
 
 
 
-    private Double positionExpansion = 0d;
-    private Double positionRotation = 0d;
-    private Float tiltPosition = new Float(0);
+    private Integer positionExpansion = 0;
+    private Integer positionRotation = 0;
+    private Integer positionTraverse = 0;
+
+    private Float tiltPosition = 0f;
 
 
     HardwareMap hwMap = null;
@@ -74,9 +77,18 @@ public class TeleOp extends LinearOpMode {
 //        leftRear.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 //        rightFront.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 //        rightRear.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        expansion.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
-        rotation.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+//        expansion.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+//        rotation.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 //        traverse.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+//
+//        rotation.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+//        expansion.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+//        traverse.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+//        positionExpansion = expansion.getCurrentPosition();
+//        positionRotation = rotation.getCurrentPosition();
+//        positionTraverse = traverse.getCurrentPosition();
+
 
         leftFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         leftRear.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -108,12 +120,12 @@ public class TeleOp extends LinearOpMode {
             direction.clear();
             if (gamepad1.left_stick_y > 0.4) {
                 direction.add("forward");
-                move(1);
+                move(-1);
             }
 
             if (gamepad1.left_stick_y < -0.4) {
                 direction.add("backward");
-                move(-1);
+                move(1);
             }
 
 
@@ -147,37 +159,41 @@ public class TeleOp extends LinearOpMode {
             }
 
 
-            if(gamepad2.x) {
-                traversing(0.1);
+            if(gamepad2.left_stick_x > 0.4) {
+                traversing(1, 72);
             }
 
 
-            if(gamepad2.y) {
-                traversing(-0.1);
+            if(gamepad2.left_stick_x < -0.4) {
+                traversing(-1, -72);
             }
 
 
-            if(gamepad2.right_stick_y > 0.4) {
-                expand(0.5, 72);
+            if (gamepad2.right_stick_x > 0.4) {
+                direction.add("expand");
+                expand(-0.75, 288);
             }
-            if(gamepad2.right_stick_y < -0.4) {
-                expand(-0.5, -72);
+            if(gamepad2.right_stick_x < -0.4) {
+                direction.add("expand");
+                expand(0.75, -288);
             }
             if(gamepad2.left_stick_y > 0.4) {
-                rotate(0.5, 72);
+                direction.add("rotate");
+                rotate(0.75, 288);
             }
             if(gamepad2.left_stick_y < -0.4) {
-                rotate(-0.5, -72);
+                direction.add("rotate");
+                rotate(-0.75, -288);
             }
 
 
             if (gamepad2.left_bumper) {
-                tiltNow(0.01);
-                telemetry.addLine("tilt", tilt.getPosition());
+                tiltNow(0.001f);
+                telemetry.addData("tilt", tilt.getPosition());
             }
             if (gamepad2.right_bumper) {
-                tiltNow(-0.01);
-                telemetry.addLine("tilt", tilt.getPosition());
+            tiltNow(-0.001f);
+                telemetry.addData("tilt", tilt.getPosition());
 
             }
 
@@ -198,9 +214,9 @@ public class TeleOp extends LinearOpMode {
             telemetry.update();
         }
     }
-q
 
-    public void tiltNow(double distance) {
+
+    public void tiltNow(Float distance) {
         tiltPosition = tiltPosition + distance;
         telemetry.addData("tiltPosition: ", tiltPosition);
         telemetry.update();
@@ -210,59 +226,78 @@ q
 
 
     public void rotate(Double power, int targetPosition) {
-        if (positionRotation < 1170 && positionRotation > -1) {
-            rotation.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            rotation.setTargetPosition(targetPosition);
-            rotation.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+//        if (positionRotation < 1170 && targetPosition > 0) {
+//            rotation.setTargetPosition(targetPosition + positionRotation);
+//            rotation.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+//            rotation.setPower(power);
+//            positionRotation = rotation.getCurrentPosition();
+//        } else if (positionRotation >= 1170 && targetPosition < 0){
+//            rotation.setTargetPosition(targetPosition + positionRotation);
+//            rotation.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+//            rotation.setPower(power);
+//            positionRotation = rotation.getCurrentPosition();
+//        }
+//        rotation.setTargetPosition(targetPosition + positionRotation);
+//            rotation.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             rotation.setPower(power);
-
-            positionRotation += targetPosition;
-
-        }
-
-        else if (positionRotation >= 1170 && targetPosition < 0) {
-            rotation.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            rotation.setTargetPosition(targetPosition);
-            rotation.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            rotation.setPower(power);
-
-            positionRotation += targetPosition;
-
-        }
-
+//            positionRotation = rotation.getCurrentPosition();
     }
 
-    public void expand(Double power, int targetPosition){
-        if (positionExpansion < 1440 && positionExpansion > -1) {
-            expansion.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            expansion.setTargetPosition(targetPosition);
-            expansion.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+    public void expand(double power, int targetPosition){
+//        if (positionExpansion < 6120 && targetPosition > -1) {
+//            expansion.setTargetPosition(targetPosition);
+//            expansion.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+//            expansion.setPower(power);
+//            positionExpansion = expansion.getCurrentPosition();
+//        }
+//        else if (positionExpansion >= 6120 && targetPosition < 0){
+//
+//            expansion.setTargetPosition(targetPosition);
+//            expansion.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+//            expansion.setPower(power);
+//            positionExpansion = expansion.getCurrentPosition();
+//        }
+//        expansion.setTargetPosition(targetPosition);
+//            expansion.setMode(DcMotor.RunMode.RUN_TO_POSITION);
             expansion.setPower(power);
-            positionExpansion += targetPosition;
-        }
-        else if (positionExpansion >= 1440 && targetPosition < 0){
+//            positionExpansion = expansion.getCurrentPosition();
 
-            expansion.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
-            expansion.setTargetPosition(targetPosition);
-            expansion.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            expansion.setPower(power);
-            positionExpansion += targetPosition;
 
-        }
-
+    }
+    public void traversing(double power, int targetPosition) {
+//        if (positionTraverse < 1440 && positionTraverse > -1440) {
+//            traverse.setTargetPosition(targetPosition);
+//            traverse.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+//            traverse.setPower(power);
+//            positionTraverse = traverse.getCurrentPosition();
+//        }
+//        else if (positionExpansion >= 1440 && targetPosition < 0){
+//            traverse.setTargetPosition(targetPosition);
+//            traverse.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+//            traverse.setPower(power);
+//            positionTraverse = traverse.getCurrentPosition();
+//        }
+//        else if (positionExpansion <= -1440 && targetPosition > 0){
+//            traverse.setTargetPosition(targetPosition);
+//            traverse.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+//            traverse.setPower(power);
+//            positionTraverse = traverse.getCurrentPosition();
+//        }
+//        traverse.setTargetPosition(targetPosition);
+//        traverse.setMode(DcMotor.RunMode.RUN_TO_POSITION);
+        traverse.setPower(power);
+//        positionTraverse = traverse.getCurrentPosition();
     }
     public void closeClaw() {
-        clamp.setPosition(0);
+        clamp.setPosition(0.3);
 
     }
 
     public void openClaw() {
-        clamp.setPosition(1);
+        clamp.setPosition(0.6);
     }
 
-    public void traversing(double power) {
-        traverse.setPower(power);
-    }
+
 
     public void move(double power){
         rightFront.setPower(power);
