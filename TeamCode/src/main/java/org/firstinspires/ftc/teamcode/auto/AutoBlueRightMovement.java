@@ -18,13 +18,13 @@ public class AutoBlueRightMovement extends LinearOpMode {
     public void runOpMode() {
 
         //Creates a CameraDetection object to detect the id and return a value for parking
-        CameraDetection camera = new CameraDetection();
+        /*CameraDetection camera = new CameraDetection();
         camera.init();
         camera.detect();
         camera.update();
 
         //Initialize park to make it equal
-        int park = camera.check();
+        int park = camera.check();*/
 
         //Calls SampleMecanumDrive to initialize the motors and use the methods.
         SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
@@ -34,10 +34,8 @@ public class AutoBlueRightMovement extends LinearOpMode {
         drive.setPoseEstimate(startPose);
 
         TrajectorySequence trajSeq = drive.trajectorySequenceBuilder(startPose)
-                .lineTo(new Vector2d(-60,-36),
-                        SampleMecanumDrive.getVelocityConstraint(3, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
-                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
-                )
+                .lineTo(new Vector2d(-60,-36))
+
                 //Goes 3 in/s towards the position
                 .waitSeconds(3)
                 .lineTo(new Vector2d(-21, -36))

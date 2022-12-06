@@ -31,6 +31,8 @@ public class TeleOp extends LinearOpMode {
     private Integer positionTraverse = 0;
 
     private Float tiltPosition = 0f;
+    boolean toggleparallel = true;
+
 
 
     HardwareMap hwMap = null;
@@ -49,7 +51,7 @@ public class TeleOp extends LinearOpMode {
         tilt = hardwareMap.get(Servo.class, "tilt");
         clamp = hardwareMap.get(Servo.class, "clamp");
 
-        tilt.setPosition(0);
+        tilt.setPosition(1);
         clamp.setPosition(0);
 
 
@@ -81,7 +83,7 @@ public class TeleOp extends LinearOpMode {
 //        rotation.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 //        traverse.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 //
-//        rotation.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        rotation.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 //        expansion.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 //        traverse.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
@@ -97,6 +99,7 @@ public class TeleOp extends LinearOpMode {
         expansion.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rotation.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         traverse.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
     }
 
     @Override
@@ -111,13 +114,25 @@ public class TeleOp extends LinearOpMode {
         telemetry.update();
 
         List<String> direction = new ArrayList<String>();
-        Boolean isPivoting = false;
-        Boolean isArm = false;
+
 
         while(opModeIsActive()) {
-            isPivoting = false;
-            isArm = false;
-            direction.clear();
+
+            if(gamepad1.a){
+                //switch bool vlaue of toggle value
+                if(toggleparallel){
+                    toggleparallel = false;
+                } else{
+                    toggleparallel = true;
+                }
+            }
+
+            if(toggleparallel) {
+                if (rotation.getCurrentPosition() <= 600) {
+                    tilt.setPosition(1 - (rotation.getCurrentPosition() * 5.0 / 6.0) / 600.0);
+                }
+            }
+
             if (gamepad1.left_stick_y > 0.4) {
                 direction.add("forward");
                 move(-1);
@@ -186,18 +201,19 @@ public class TeleOp extends LinearOpMode {
                 rotate(-0.75, -288);
             }
 
+            //should only run if its not toggled
+            if(!toggleparallel) {
+                if (gamepad2.left_bumper) {
+                    tiltNow(0.001f);
+                    telemetry.addData("tilt", tilt.getPosition());
+                }
+                if (gamepad2.right_bumper) {
+                    tiltNow(-0.001f);
+                    telemetry.addData("tilt", tilt.getPosition());
 
-            if (gamepad2.left_bumper) {
-                tiltNow(0.001f);
-                telemetry.addData("tilt", tilt.getPosition());
+                }
             }
-            if (gamepad2.right_bumper) {
-            tiltNow(-0.001f);
-                telemetry.addData("tilt", tilt.getPosition());
-
-            }
-
-            if (direction.isEmpty() && isPivoting == false && isArm == false) {
+            if (direction.isEmpty() ) {
                 leftFront.setPower(0);
                 leftRear.setPower(0);
                 rightFront.setPower(0);
@@ -239,7 +255,7 @@ public class TeleOp extends LinearOpMode {
 //        }
 //        rotation.setTargetPosition(targetPosition + positionRotation);
 //            rotation.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            rotation.setPower(power);
+        rotation.setPower(power);
 //            positionRotation = rotation.getCurrentPosition();
     }
 
@@ -259,7 +275,7 @@ public class TeleOp extends LinearOpMode {
 //        }
 //        expansion.setTargetPosition(targetPosition);
 //            expansion.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            expansion.setPower(power);
+        expansion.setPower(power);
 //            positionExpansion = expansion.getCurrentPosition();
 
 

@@ -18,14 +18,14 @@ public class AutoBlueRight_v2 extends LinearOpMode {
     public void runOpMode() {
 
         //Creates a CameraDetection object to detect the id and return a value for parking
-        CameraDetection camera = new CameraDetection();
+        /*CameraDetection camera = new CameraDetection();
         camera.init();
         camera.detect();
         camera.update();
 
         //Initialize park to receive parking location
-        int park = camera.check();
-
+        int park = camera.check();*/
+        int park = 0;
         //Calls SampleMecanumDrive to initialize the motors and use the methods.
         SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
 
@@ -34,21 +34,18 @@ public class AutoBlueRight_v2 extends LinearOpMode {
         drive.setPoseEstimate(startPose);
 
         //Approaches the signal cone for the camera to detect the id
-        Trajectory cameraTraj = drive.trajectoryBuilder(new Pose2d())
-                .lineTo(new Vector2d(-60,-36),
-                        SampleMecanumDrive.getVelocityConstraint(3, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
-                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
-                )
+        Trajectory cameraTraj = drive.trajectoryBuilder(startPose)
+                .lineTo(new Vector2d(-20, -36))
                 .build();
 
         //Plows the signal cone and moves to (-21, -36) to allow the robot to drop the cone on the high junction
-        Trajectory traj1 = drive.trajectoryBuilder(new Pose2d())
-                .lineTo(new Vector2d(-21, -36))
+        Trajectory traj1 = drive.trajectoryBuilder(cameraTraj.end())
+                .forward(10)
                 .build();
 
         //Rotates 90 degrees counterclockwise and moves to (-21, -50) to pick up a cone
         Trajectory traj2 = drive.trajectoryBuilder(traj1.end())
-                .lineToLinearHeading(new Pose2d(-21,-50, Math.toRadians(90)))
+                .strafeLeft(14)
                 .build();
 
         //Rotates 180 degrees counterclockwise and moves to (-21, -36) to drop the cone on the high junction
@@ -62,15 +59,11 @@ public class AutoBlueRight_v2 extends LinearOpMode {
                 .build();
 
         //Initialize parking trajectory
-        Trajectory parkTraj;
+        Trajectory parkTraj = null;
 
         if (park == 1) {
             parkTraj = drive.trajectoryBuilder(traj3.end())
                     .forward(24)
-                    .build();
-        }
-        else if (park == 2) {
-            parkTraj = drive.trajectoryBuilder(traj3.end())
                     .build();
         }
         else if (park == 3) {
@@ -81,8 +74,6 @@ public class AutoBlueRight_v2 extends LinearOpMode {
         else {
             telemetry.addLine("well frick");
             telemetry.update();
-            parkTraj = drive.trajectoryBuilder(traj3.end())
-                    .build();
         }
 
         waitForStart();
@@ -91,12 +82,20 @@ public class AutoBlueRight_v2 extends LinearOpMode {
 
         //drive.rotate();
         drive.followTrajectory(cameraTraj);
+        telemetry.addLine("ITS GOING FORWARD WOWO");
+        telemetry.update();
         sleep(3000);
 
 
-        //Goes to -21, -36, turni  ng 90 degrees clockwise
-        drive.followTrajectory(traj1);
 
+        //Goes to -21, -36, turni  ng 90 degrees clockwise
+       /*
+        drive.followTrajectory(traj1);
+        telemetry.addLine("WOW IS IT GOING FORWARD WAIT ITS NOT");
+        telemetry.update();
+
+        sleep(3000);
+        */
         //Code to drop the cone on the top junction
         //drive.rotate(0.1, 1);
         //drive.traversing(0.1, 1);
@@ -109,7 +108,11 @@ public class AutoBlueRight_v2 extends LinearOpMode {
         //drive.traversing(-0.1, 1);
         //drive.expand(-0.05, 1);
 
-        drive.followTrajectory(traj2); //rotate arm -90 degrees during
+//        drive.followTrajectory(traj2);
+  //      sleep(3000);
+      //  drive.turn(Math.toRadians(90));
+    //    sleep(3000);
+        //rotate arm -90 degrees during
         //drive.expand(0.1, 1);
         //drive.rotate(0.1, -0.25);
         //drive.closeClaw();
@@ -120,7 +123,7 @@ public class AutoBlueRight_v2 extends LinearOpMode {
         //rotate arm -135 degrees
         //grab cone
 
-        drive.followTrajectory(traj3);
+//        drive.followTrajectory(traj3);
         //drive.traversing(0.1, 1);
         //drive.expand(0.1, 1);
         //drive.tiltNow(90);
@@ -131,7 +134,7 @@ public class AutoBlueRight_v2 extends LinearOpMode {
         //drop on tall junction
 
         //park``
-        drive.followTrajectory(traj4);
+//        drive.followTrajectory(traj4);
         //drive.expand(0.1, 1);
         //drive.rotate(0.1, -0.25);
         //drive.closeClaw();
@@ -139,6 +142,8 @@ public class AutoBlueRight_v2 extends LinearOpMode {
         //drive.expand(0.1, 1);
         //drive.tiltNow();
 
-        drive.followTrajectory(parkTraj);
+//        if (parkTraj != null) {
+  //          drive.followTrajectory(parkTraj);
+    //    }
     }
 }
