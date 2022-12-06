@@ -9,7 +9,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.auto.cameradetection.CameraDetection;
 
-@Autonomous
+@Autonomous(name = "AutoBlueLeft_v2")
 public class AutoBlueLeft_v2 extends LinearOpMode {
     @Override
     public void runOpMode() {
@@ -30,7 +30,7 @@ public class AutoBlueLeft_v2 extends LinearOpMode {
         drive.setPoseEstimate(startPose);
 
         Trajectory traj1 = drive.trajectoryBuilder(new Pose2d())
-                .forward(48)
+                .lineTo(new Vector2d(-21, 36))
                 .splineTo(new Vector2d(-21, 36), Math.toRadians(90))
                 .build();
 
