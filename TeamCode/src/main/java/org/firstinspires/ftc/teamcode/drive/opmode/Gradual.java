@@ -18,17 +18,14 @@ import org.opencv.core.Mat;
 
 import java.util.Arrays;
 
-@com.qualcomm.robotcore.eventloop.opmode.TeleOp(name = "polkioplkioplk")
-public class Gradual extends LinearOpMode {
+@com.qualcomm.robotcore.eventloop.opmode.TeleOp(name = "Gradual")
+public class TeleOp extends LinearOpMode {
     private DcMotorEx leftFront, leftRear, rightRear, rightFront;
     private DcMotorEx expansion, traverse, rotation;
     private Servo tilt, clamp;
 
 
 
-    private Integer positionExpansion = 0;
-    private Integer positionRotation = 0;
-    private Integer positionTraverse = 0;
 
     private Float tiltPosition = 0f;
 
@@ -121,69 +118,72 @@ public class Gradual extends LinearOpMode {
 
 
 
+            if (Math.abs(gamepad1.left_stick_y) > 0.2) {
                 move(-gamepad1.left_stick_y);
+                direction.add("a;lsdfj");
+            }
 
 
+            if (Math.abs(gamepad1.left_stick_x) > 0.2) {
+                direction.add("a;lsdfj");
 
                 sides(-gamepad1.left_stick_x);
+            }
+            if (Math.abs(gamepad1.right_stick_x ) > 0.2) {
+                direction.add("a;lsdfj");
 
                 turning(gamepad1.right_stick_x);
+            }
 
 
 
 
-
-            if(gamepad2.a) {
+            if(gamepad2.left_bumper) {
                 openClaw();
             }
-            if(gamepad2.b) {
+            if(gamepad2.right_bumper) {
                 closeClaw();
                 // unknown distance
             }
 
 
-//            if(gamepad2.left_stick_x > 0.4) {
-//                traversing(1, 72);
+           if (Math.abs(gamepad2.left_stick_x) > 0.2) {
+               traversing(gamepad2.left_stick_x, 72);
+           }
+            if (Math.abs(gamepad2.right_stick_x) > 0.2) {
+
+                expand(-gamepad2.right_stick_x, 288);
+            }
+
+            if (Math.abs(gamepad2.left_stick_y) > 0.2) {
+                rotate(gamepad2.left_stick_y, 288);
+            }
+
+
+//            if (gamepad2.left_trigger != 0) {
+//                tiltNow(0.001f);
+//             //   telemetry.addData("tilt", tilt.getPosition());
 //            }
+//            if (gamepad2.right_trigger != 0) {
+//                tiltNow(-0.001f);
+//              //  telemetry.addData("tilt", tilt.getPosition());
 //
-//
-//
-//            if(gamepad2.left_stick_x < -0.4) {
-//                traversing(-1, -72);
 //            }
-            traversing(gamepad2.left_stick_x, 72);
+            tiltNow(gamepad2.left_trigger * 0.002f);
 
+                //   telemetry.addData("tilt", tilt.getPosition());
 
-            expand(-gamepad2.right_stick_x, 288);
+            tiltNow(gamepad2.right_trigger * -0.002f);
+                //  telemetry.addData("tilt", tilt.getPosition());
 
-
-            if(gamepad2.left_stick_y > 0.4) {
-                direction.add("rotate");
-                rotate(0.75, 288);
-            }
-            if(gamepad2.left_stick_y < -0.4) {
-                direction.add("rotate");
-                rotate(-0.75, -288);
-            }
-
-
-            if (gamepad2.left_bumper) {
-                tiltNow(0.001f);
-                telemetry.addData("tilt", tilt.getPosition());
-            }
-            if (gamepad2.right_bumper) {
-            tiltNow(-0.001f);
-                telemetry.addData("tilt", tilt.getPosition());
-
-            }
 
             if (direction.isEmpty() && isPivoting == false && isArm == false) {
-//                expansion.setPower(0);
+                expansion.setPower(0);
                 rotation.setPower(0);
-//                traverse.setPower(0);
-//                telemetry.addLine("stopping");
-//                telemetry.update();
-         }
+                traverse.setPower(0);
+                telemetry.addLine("stopping");
+                telemetry.update();
+            }
 
             telemetry.addData("direction", direction);
             telemetry.addData("tiltPosition: ", tiltPosition);
@@ -201,7 +201,7 @@ public class Gradual extends LinearOpMode {
 
 
 
-    public void rotate(Double power, int targetPosition) {
+    public void rotate(double power, int targetPosition) {
 //        if (positionRotation < 1170 && targetPosition > 0) {
 //            rotation.setTargetPosition(targetPosition + positionRotation);
 //            rotation.setMode(DcMotor.RunMode.RUN_TO_POSITION);
@@ -215,7 +215,7 @@ public class Gradual extends LinearOpMode {
 //        }
 //        rotation.setTargetPosition(targetPosition + positionRotation);
 //            rotation.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            rotation.setPower(power);
+        rotation.setPower(power);
 //            positionRotation = rotation.getCurrentPosition();
     }
 
@@ -235,7 +235,7 @@ public class Gradual extends LinearOpMode {
 //        }
 //        expansion.setTargetPosition(targetPosition);
 //            expansion.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-            expansion.setPower(power);
+        expansion.setPower(power);
 //            positionExpansion = expansion.getCurrentPosition();
 
 
