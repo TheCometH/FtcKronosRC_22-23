@@ -108,28 +108,26 @@ public class TeleOp extends LinearOpMode {
         telemetry.update();
 
         List<String> direction = new ArrayList<String>();
-        Boolean isPivoting = false;
-        Boolean isArm = false;
+
 
         while(opModeIsActive()) {
-            isPivoting = false;
-            isArm = false;
+
             direction.clear();
 
 
 
-            if (Math.abs(gamepad1.left_stick_y) > 0.2) {
+            if (Math.abs(gamepad1.left_stick_y) > 0.2f) {
                 move(-gamepad1.left_stick_y);
                 direction.add("a;lsdfj");
             }
 
 
-            if (Math.abs(gamepad1.left_stick_x) > 0.2) {
+            if (Math.abs(gamepad1.left_stick_x) > 0.2f) {
                 direction.add("a;lsdfj");
 
                 sides(-gamepad1.left_stick_x);
             }
-            if (Math.abs(gamepad1.right_stick_x ) > 0.2) {
+            if (Math.abs(gamepad1.right_stick_x ) > 0.2f) {
                 direction.add("a;lsdfj");
 
                 turning(gamepad1.right_stick_x);
@@ -147,37 +145,43 @@ public class TeleOp extends LinearOpMode {
             }
 
 
-           if (Math.abs(gamepad2.left_stick_x) > 0.2) {
+           if (Math.abs(gamepad2.left_stick_x) > 0.2f) {
                traversing(gamepad2.left_stick_x, 72);
+               direction.add("a;lsdfj");
+
            }
-            if (Math.abs(gamepad2.right_stick_x) > 0.2) {
+            if (Math.abs(gamepad2.right_stick_x) > 0.2f) {
+                direction.add("a;lsdfj");
 
                 expand(-gamepad2.right_stick_x, 288);
             }
 
-            if (Math.abs(gamepad2.left_stick_y) > 0.2) {
+            if (Math.abs(gamepad2.left_stick_y) > 0.2f) {
+                direction.add("a;lsdfj");
+
                 rotate(gamepad2.left_stick_y, 288);
             }
 
 
-//            if (gamepad2.left_trigger != 0) {
-//                tiltNow(0.001f);
-//             //   telemetry.addData("tilt", tilt.getPosition());
-//            }
-//            if (gamepad2.right_trigger != 0) {
-//                tiltNow(-0.001f);
-//              //  telemetry.addData("tilt", tilt.getPosition());
 //
-//            }
-            tiltNow(gamepad2.left_trigger * 0.002f);
+            if(gamepad2.left_trigger != 0.0f) {
+                direction.add("a;lsdfj");
 
+                tiltNow(gamepad2.left_trigger * 0.002f);
+            }
                 //   telemetry.addData("tilt", tilt.getPosition());
+            if(gamepad2.right_trigger != 0.0f) {
+                direction.add("a;lsdfj");
 
-            tiltNow(gamepad2.right_trigger * -0.002f);
+                tiltNow(gamepad2.right_trigger * -0.002f);
                 //  telemetry.addData("tilt", tilt.getPosition());
+            }
 
-
-            if (direction.isEmpty() && isPivoting == false && isArm == false) {
+            if (direction.isEmpty()) {
+                leftFront.setPower(0);
+                leftRear.setPower(0);
+                rightFront.setPower(0);
+                rightRear.setPower(0);
                 expansion.setPower(0);
                 rotation.setPower(0);
                 traverse.setPower(0);
