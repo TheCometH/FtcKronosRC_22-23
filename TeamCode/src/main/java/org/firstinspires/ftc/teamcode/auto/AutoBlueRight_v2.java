@@ -7,10 +7,12 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.teamcode.drive.DriveConstants;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.auto.cameradetection.CameraDetection;
+import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 
-@Autonomous
+@Autonomous(name = "AutoBlueRight_v2")
 public class AutoBlueRight_v2 extends LinearOpMode {
     @Override
     public void runOpMode() {
@@ -21,42 +23,45 @@ public class AutoBlueRight_v2 extends LinearOpMode {
         camera.detect();
         camera.update();
 
-        //Initialize park to make it equal
+        //Initialize park to receive parking location
         int park = camera.check();
 
         //Calls SampleMecanumDrive to initialize the motors and use the methods.
         SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
 
-        //Creates initial position of the robot based on the back of the robot
+        //Creates initial position of the robot based on the back center of the robot
         Pose2d startPose = new Pose2d(-72, -36, Math.toRadians(0));
         drive.setPoseEstimate(startPose);
 
-        Trajectory initTraj = drive.trajectoryBuilder(new Pose2d())
-                .forward(3)
-                .build();
-
+        //Approaches the signal cone for the camera to detect the id
         Trajectory cameraTraj = drive.trajectoryBuilder(new Pose2d())
-                .forward(9)
+                .lineTo(new Vector2d(-60,-36),
+                        SampleMecanumDrive.getVelocityConstraint(3, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
+                )
                 .build();
 
-        //Moves forward and turns 90 degrees clockwise to the position
+        //Plows the signal cone and moves to (-21, -36) to allow the robot to drop the cone on the high junction
         Trajectory traj1 = drive.trajectoryBuilder(new Pose2d())
-                .forward(36)
-                .splineTo(new Vector2d(-21, -36), Math.toRadians(-90))
+                .lineTo(new Vector2d(-21, -36))
                 .build();
 
+        //Rotates 90 degrees counterclockwise and moves to (-21, -50) to pick up a cone
         Trajectory traj2 = drive.trajectoryBuilder(traj1.end())
-                .splineTo(new Vector2d(-21,-54), Math.toRadians(180))
+                .lineToLinearHeading(new Pose2d(-21,-50, Math.toRadians(90)))
                 .build();
 
+        //Rotates 180 degrees counterclockwise and moves to (-21, -36) to drop the cone on the high junction
         Trajectory traj3 = drive.trajectoryBuilder(traj2.end())
-                .splineTo(new Vector2d(-21,-36), Math.toRadians(180))
+                .lineToLinearHeading(new Pose2d(-21,-36, Math.toRadians(180)))
                 .build();
 
+        //Rotates 180 degrees clockwise and moves to (-21, -50) to pick up a cone
         Trajectory traj4 = drive.trajectoryBuilder(traj3.end())
-                .splineTo(new Vector2d(-21,-54), Math.toRadians(180))
+                .lineToLinearHeading(new Pose2d(-21,-50, Math.toRadians(-180)))
                 .build();
 
+        //Initialize parking trajectory
         Trajectory parkTraj;
 
         if (park == 1) {
@@ -80,16 +85,16 @@ public class AutoBlueRight_v2 extends LinearOpMode {
                     .build();
         }
 
+        waitForStart();
 
-        drive.followTrajectory(initTraj);
-        //drive.rotate(0.1, 1);
+        if(isStopRequested()) return;
 
-
+        //drive.rotate();
         drive.followTrajectory(cameraTraj);
         sleep(3000);
 
 
-        //Goes to -21, -36, turning 90 degrees clockwise
+        //Goes to -21, -36, turni  ng 90 degrees clockwise
         drive.followTrajectory(traj1);
 
         //Code to drop the cone on the top junction
