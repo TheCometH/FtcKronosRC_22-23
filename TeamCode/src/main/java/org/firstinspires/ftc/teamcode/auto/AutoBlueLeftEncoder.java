@@ -9,6 +9,8 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import org.firstinspires.ftc.teamcode.auto.cameradetection.CameraDetectionV2;
+
 @Autonomous(name = "AutoBlueLeftEncoder")
 public class AutoBlueLeftEncoder extends LinearOpMode {
 
@@ -25,7 +27,7 @@ public class AutoBlueLeftEncoder extends LinearOpMode {
     HardwareMap hw = null;
 
     @Override
-    public void runOpMode() {
+    public void runOpMode() throws InterruptedException {
         leftFront = hardwareMap.get(DcMotorEx.class, "leftFront");
         leftRear = hardwareMap.get(DcMotorEx.class, "leftRear");
         rightRear = hardwareMap.get(DcMotorEx.class, "rightRear");
@@ -48,7 +50,31 @@ public class AutoBlueLeftEncoder extends LinearOpMode {
         rightFront.setPower(0);
         rightRear.setPower(0);
 
+        CameraDetectionV2 camera = new CameraDetectionV2();
+        camera.initTele(telemetry);
+        camera.initCamera(hardwareMap);
+        camera.detect();
+        camera.update();
+
+        //Initialize park to receive parking location
+        int parkNumber = camera.check();
+
         straight(1.0, distance(12));
+        sleep(3000);
+        telemetry.clearAll();
+        if(parkNumber == 1) {
+            telemetry.addLine("1");
+            telemetry.update();
+        } else if (parkNumber == 2) {
+            telemetry.addLine("2");
+            telemetry.update();
+        } else if (parkNumber == 3) {
+            telemetry.addLine("3");
+            telemetry.update();
+        } else {
+            telemetry.addLine("0");
+            telemetry.update();
+        }
         straight(1.0, distance(40));
     }
 
