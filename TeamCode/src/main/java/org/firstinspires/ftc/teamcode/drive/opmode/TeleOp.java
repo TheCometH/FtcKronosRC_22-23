@@ -129,7 +129,7 @@ public class TeleOp extends LinearOpMode {
 
             if(toggleparallel) {
                 if (rotation.getCurrentPosition() <= 600) {
-                    tilt.setPosition(1 - (rotation.getCurrentPosition() * 5.0 / 6.0) / 600.0);
+                    tilt.setPosition(0.705 - (rotation.getCurrentPosition() * 0.56033) / 600.0);
                 }
             }
 
