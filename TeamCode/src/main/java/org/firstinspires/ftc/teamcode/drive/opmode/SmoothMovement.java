@@ -183,7 +183,7 @@ public class SmoothMovement extends LinearOpMode {
             }
 
             // Right
-            if (gamepad1.left_stick_x > 0.3) {
+            if (gamepad1.left_stick_x < -0.3) {
                 direction.add("Right");
                 telemetry.addData("Right, power", gamepad1.left_stick_x);
                 sides(gamepad1.left_stick_x);
@@ -191,7 +191,7 @@ public class SmoothMovement extends LinearOpMode {
             }
 
             // Left
-            else if (gamepad1.left_stick_x < -0.3) {
+            else if (gamepad1.left_stick_x > 0.3) {
                 direction.add("Left");
                 telemetry.addData("Left, power", gamepad1.left_stick_x);
                 sides(gamepad1.left_stick_x);
@@ -201,7 +201,7 @@ public class SmoothMovement extends LinearOpMode {
             if(gamepad1.right_bumper) {
 
                 direction.add("TURN");
-                turning(1);
+                turning(-1);
 
             }
 
@@ -209,7 +209,7 @@ public class SmoothMovement extends LinearOpMode {
             else if(gamepad1.left_bumper) {
                 direction.add("TURN");
 
-                turning(-1);
+                turning(1);
             }
 
             // Open Claw
