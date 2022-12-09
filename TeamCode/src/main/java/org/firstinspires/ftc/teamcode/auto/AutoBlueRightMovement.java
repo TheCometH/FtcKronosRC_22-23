@@ -5,92 +5,84 @@ import com.acmerobotics.roadrunner.geometry.Vector2d;
 import com.acmerobotics.roadrunner.trajectory.Trajectory;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
-import com.qualcomm.robotcore.util.ElapsedTime;
 
+import org.firstinspires.ftc.teamcode.auto.cameradetection.CameraDetectionV2;
 import org.firstinspires.ftc.teamcode.drive.DriveConstants;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
-import org.firstinspires.ftc.teamcode.auto.cameradetection.CameraDetection;
 import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
+
+import java.util.concurrent.atomic.AtomicReference;
 
 @Autonomous(name = "AutoBlueRightMovement")
 public class AutoBlueRightMovement extends LinearOpMode {
 
-
+    int parkNumber = 0;
+    boolean idFound = false;
 
     @Override
-    public void runOpMode() {
+    public void runOpMode() throws InterruptedException {
 
         //Creates a CameraDetection object to detect the id and return a value for parking
-        /*CameraDetection camera = new CameraDetection();
-        camera.init();
-        camera.detect();
-        camera.update();
-
-        //Initialize park to make it equal
-        int park = camera.check();*/
 
         //Calls SampleMecanumDrive to initialize the motors and use the methods.
         SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
 
         //Creates initial position of the robot based on the back center of the robot
-        Pose2d startPose = new Pose2d(-72, -36, Math.toRadians(0));
+        Pose2d startPose = new Pose2d(-72, -36, Math.toRadians(180));
         drive.setPoseEstimate(startPose);
 
+        CameraDetectionV2 camera = new CameraDetectionV2();
+        Trajectory parkTraj;
+
         TrajectorySequence trajSeq = drive.trajectorySequenceBuilder(startPose)
-                .lineToConstantHeading(new Vector2d(-21, -36))
-                //.waitSeconds(2)
-                //.turn(Math.toRadians(90))
-                .addSpatialMarker(new Vector2d(-62, -36), () -> {
-                    telemetry.addLine("Reach (-62, -36)");
-                    telemetry.update();
-                })
-                .addDisplacementMarker(10, () -> {
-                    telemetry.addLine("10 inches past");
-                    telemetry.update();
-                })
+                .lineTo(new Vector2d(-60, 36),
+                        SampleMecanumDrive.getVelocityConstraint(15, DriveConstants.MAX_ANG_VEL, DriveConstants.TRACK_WIDTH),
+                        SampleMecanumDrive.getAccelerationConstraint(DriveConstants.MAX_ACCEL)
+                )
+                .waitSeconds(3)
+                .addTemporalMarker(1,() -> {
+                    camera.initTele(telemetry);
+                    camera.initCamera(hardwareMap);
 
-                .addSpatialMarker(new Vector2d(-52, -36), () -> {
-                    telemetry.addLine("Reach (-52, -36)");
-                    telemetry.update();
-                })
-                .addDisplacementMarker(20, () -> {
-                    telemetry.addLine("20 inches past");
-                    telemetry.update();
-                })
+                    /*
+                     * The INIT-loop:
+                     * This REPLACES waitForStart!
+                     */
+                    while (!isStarted() && !isStopRequested() && !idFound)
+                    {
+                        try {
+                            camera.detect();
+                        } catch (InterruptedException e) {
+                            e.printStackTrace();
+                        }
+                        /*
+                         * The START command just came in: now work off the latest snapshot acquired
+                         * during the init loop.
+                         */
 
-                .addSpatialMarker(new Vector2d(-42, -36), () -> {
-                    telemetry.addLine("Reach (-42, -36)");
-                    telemetry.update();
-                })
-                .addDisplacementMarker(30, () -> {
-                    telemetry.addLine("30 inches past");
-                    telemetry.update();
-                })
+                        /* Update the telemetry */
+                        camera.update();
 
-                .addSpatialMarker(new Vector2d(-32, -36), () -> {
-                    telemetry.addLine("Reach (-32, -36)");
-                    telemetry.update();
-                })
-                .addDisplacementMarker(40, () -> {
-                    telemetry.addLine("40 inches past");
-                    telemetry.update();
-                })
+                        /* Actually do something useful */
+                        parkNumber = camera.check();
 
-                .addSpatialMarker(new Vector2d(-21, -36), () -> {
-                    telemetry.addLine("Reach (-21, -36)");
+                        if (parkNumber == 1 || parkNumber == 2 || parkNumber == 3) {
+                            idFound = true;
+                        }
+                        else {
+                            telemetry.addLine("well frick");
+                            telemetry.update();
+                        }
+                    }
+                    telemetry.addLine("parking spot: " + parkNumber);
                     telemetry.update();
+                    sleep(20);
                 })
-                .addDisplacementMarker(51, () -> {
-                    telemetry.addLine("51 inches past");
-                    telemetry.update();
-                })
-                /*.lineToLinearHeading(new Pose2d(-21,-50, Math.toRadians(90)))
+                .lineTo(new Vector2d(-21, 36))
                 .waitSeconds(2)
-                .lineToLinearHeading(new Pose2d(-21,-36, Math.toRadians(180)))
+                .turn(Math.toRadians(90))
                 .waitSeconds(2)
-                .lineToLinearHeading(new Pose2d(-21,-50, Math.toRadians(-180)))
-                .waitSeconds(2)
-                .lineToLinearHeading(new Pose2d(-21,-36, Math.toRadians(180)))*/
+                .lineToConstantHeading(new Vector2d(-54, 36))
                 .build();
 
         /*TrajectorySequence trajSeq = drive.trajectorySequenceBuilder(startPose)
@@ -122,7 +114,30 @@ public class AutoBlueRightMovement extends LinearOpMode {
 */
         waitForStart();
 
-        if(!isStopRequested())
+        if(!isStopRequested()) {
             drive.followTrajectorySequence(trajSeq);
+            if (parkNumber == 1) {
+                parkTraj = drive.trajectoryBuilder(new Pose2d())
+                        .back(24)
+                        .build();
+            }
+            else if (parkNumber == 2) {
+                parkTraj = drive.trajectoryBuilder(new Pose2d())
+                        .build();
+            }
+            else if (parkNumber == 3) {
+                parkTraj = drive.trajectoryBuilder(new Pose2d())
+                        .forward(24)
+                        .build();
+            }
+            else {
+                telemetry.addLine("well frick");
+                telemetry.update();
+                parkTraj = drive.trajectoryBuilder(new Pose2d())
+                        .build();
+            }
+            drive.followTrajectory(parkTraj);
+        }
+
     }
 }
