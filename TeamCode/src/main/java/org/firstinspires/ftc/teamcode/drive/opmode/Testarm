@@ -1,0 +1,25 @@
+package org.firstinspires.ftc.teamcode.drive.opmode;
+
+import android.graphics.LinearGradient;
+
+import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.hardware.DcMotorEx;
+import com.qualcomm.robotcore.hardware.DcMotorSimple;
+
+
+@TeleOp(name = "testarm")
+public class Testarm extends LinearOpMode {
+    @Override
+    public void runOpMode() throws InterruptedException {
+        DcMotorEx rotation = hardwareMap.get(DcMotorEx.class, "rotation");
+        rotation.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+        rotation.setDirection(DcMotorSimple.Direction.FORWARD);
+        rotation.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+        while(opModeIsActive()){
+            rotation.setPower(gamepad1.left_stick_y);
+            telemetry.addLine("position of the rotation encoder "+ rotation.getCurrentPosition());
+        }
+    }
+}
