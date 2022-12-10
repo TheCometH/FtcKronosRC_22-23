@@ -164,6 +164,7 @@ public class FinalAutoBlueRight extends LinearOpMode {
             expand(1, 1077);
             sleep(500);
             tilt.setPosition(0.2);
+            sleep(500);
             openClaw();
             sleep(500);
             closeClaw();
