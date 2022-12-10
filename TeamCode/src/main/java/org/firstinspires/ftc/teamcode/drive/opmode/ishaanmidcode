@@ -1,25 +1,18 @@
 package org.firstinspires.ftc.teamcode.drive.opmode;
 
 
-import com.acmerobotics.roadrunner.drive.Drive;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
-import org.opencv.core.Mat;
-
-import java.util.Arrays;
-
-@com.qualcomm.robotcore.eventloop.opmode.TeleOp(name = "polkioplkioplk")
-public class TeleOp extends LinearOpMode {
+@com.qualcomm.robotcore.eventloop.opmode.TeleOp(name = "bob")
+public class TeleOpp extends LinearOpMode {
     private DcMotorEx leftFront, leftRear, rightRear, rightFront;
     private DcMotorEx expansion, traverse, rotation;
     private Servo tilt, clamp;
@@ -31,8 +24,9 @@ public class TeleOp extends LinearOpMode {
     private Integer positionTraverse = 0;
 
     private Float tiltPosition = 0f;
-    boolean toggleparallel = true;
 
+    private Float ughOffset =  -30f;
+    private int irP;
 
 
     HardwareMap hwMap = null;
@@ -51,7 +45,7 @@ public class TeleOp extends LinearOpMode {
         tilt = hardwareMap.get(Servo.class, "tilt");
         clamp = hardwareMap.get(Servo.class, "clamp");
 
-        tilt.setPosition(0.705);
+        tilt.setPosition(0);
         clamp.setPosition(0);
 
 
@@ -83,7 +77,8 @@ public class TeleOp extends LinearOpMode {
 //        rotation.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 //        traverse.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 //
-        rotation.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+
 //        expansion.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 //        traverse.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
@@ -100,10 +95,13 @@ public class TeleOp extends LinearOpMode {
         rotation.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         traverse.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
+        irP = rotation.getCurrentPosition();
     }
 
     @Override
     public void runOpMode() {
+
+
 
         init(hardwareMap);
         telemetry.addLine("init done");
@@ -114,23 +112,37 @@ public class TeleOp extends LinearOpMode {
         telemetry.update();
 
         List<String> direction = new ArrayList<String>();
+        Boolean isPivoting = false;
+        Boolean isArm = false;
 
+        /**
+         *  Gamepad 1:
+         *      Left stick;
+         *          y: Chassis back and forth, x: Chassis left and right
+         *      Bumper:
+         *          Chassis turn left, right
+         *  Gamepad 2:
+         *      A: Close Claw
+         *      B: Open Claw
+         *      Left stick:
+         *          x: Traverse left and right, y: Rotate right and left
+         *      Right stick:
+         *          x: Expand and Retract
+         *      Bumper:
+         *          Left: tilt
+         *
+         * **/
 
         while(opModeIsActive()) {
 
-            if(gamepad2.x){
-                //switch bool vlaue of toggle value
-                if(toggleparallel){
-                    toggleparallel = false;
-                } else{
-                    toggleparallel = true;
-                }
-            }
+            isPivoting = false;
+            isArm = false;
+            direction.clear();
 
-            if(toggleparallel) {
-                if (rotation.getCurrentPosition() <= 600) {
-                    tilt.setPosition(0.705 - (rotation.getCurrentPosition() * 0.56033) / 600.0);
-                }
+            if (gamepad2.y){
+
+                godHelpMe();
+
             }
 
             if (gamepad1.left_stick_y > 0.3) {
@@ -220,16 +232,16 @@ public class TeleOp extends LinearOpMode {
                 rotate((double)gamepad2.left_stick_y, -288);
             }
 
-            if(!toggleparallel){
-                if (gamepad2.left_bumper) {
-                    tiltNow(0.003f);
-                    telemetry.addData("Tilt", tilt.getPosition());
-                }
-                if (gamepad2.right_bumper) {
-                    tiltNow(-0.003f);
-                    telemetry.addData("Tilt", tilt.getPosition());
 
-            }}
+            if (gamepad2.left_bumper) {
+                tiltNow(0.003f);
+                telemetry.addData("Tilt", tilt.getPosition());
+            }
+            if (gamepad2.right_bumper) {
+                tiltNow(-0.003f);
+                telemetry.addData("Tilt", tilt.getPosition());
+
+            }
 
             if (direction.isEmpty()) {
                 leftFront.setPower(0);
@@ -245,8 +257,8 @@ public class TeleOp extends LinearOpMode {
             telemetry.addData("tiltPosition: ", tilt.getPosition());
             telemetry.addData("Rotation Position", rotation.getCurrentPosition());
             telemetry.addData("Expansion Position", expansion.getCurrentPosition());
-//            telemetry.addData("random number");
-//            telemetry.addData("why", );
+            telemetry.addData("random number", mtod());
+            telemetry.addData("why", (90f - mtod()) / 180);
             telemetry.update();
         }
     }
@@ -254,8 +266,7 @@ public class TeleOp extends LinearOpMode {
 
     public void tiltNow(Float distance) {
         tiltPosition = tiltPosition + distance;
-        telemetry.addData("tiltPosition: ", tiltPosition);
-        telemetry.update();
+        tiltPosition = Range.clip(tiltPosition, 0, 1);
         tilt.setPosition(tiltPosition);
     }
 
@@ -275,8 +286,23 @@ public class TeleOp extends LinearOpMode {
 //        }
 //        rotation.setTargetPosition(targetPosition + positionRotation);
 //            rotation.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        rotation.setPower(power);
+            rotation.setPower(power);
 //            positionRotation = rotation.getCurrentPosition();
+    }
+
+    private float mtod(){
+
+        return ((rotation.getCurrentPosition() - irP) * 360f / 1440f) + 20f;
+    }
+
+    private void godHelpMe(){
+        if ( ((90f - mtod()) / 180f) >= 0) {
+            tilt.setPosition((90f - mtod()) / 180f);
+        }
+        else {
+            tilt.setPosition(-(90f - mtod()) / 180f);
+        }
+
     }
 
     public void expand(double power, int targetPosition){
@@ -295,7 +321,7 @@ public class TeleOp extends LinearOpMode {
 //        }
 //        expansion.setTargetPosition(targetPosition);
 //            expansion.setMode(DcMotor.RunMode.RUN_TO_POSITION);
-        expansion.setPower(power);
+            expansion.setPower(power);
 //            positionExpansion = expansion.getCurrentPosition();
 
 
@@ -322,7 +348,7 @@ public class TeleOp extends LinearOpMode {
 //        traverse.setTargetPosition(targetPosition);
 //        traverse.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         traverse.setPower(power);
-//        positionTraverse = traverse.getCurrentPosition();
+//        positionTraverse = traverse.getCurrentPosition();  
     }
     public void closeClaw() {
         clamp.setPosition(0.3);
