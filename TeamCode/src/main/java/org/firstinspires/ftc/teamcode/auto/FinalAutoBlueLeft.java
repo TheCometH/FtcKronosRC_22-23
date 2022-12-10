@@ -18,7 +18,7 @@ import org.firstinspires.ftc.teamcode.trajectorysequence.TrajectorySequence;
 
 import java.util.concurrent.atomic.AtomicReference;
 
-@Autonomous(name = "FinalAutoBlueRight")
+@Autonomous(name = "FinalAutoBlueLeft")
 public class FinalAutoBlueLeft extends LinearOpMode {
 
     int parkNumber = 0;
