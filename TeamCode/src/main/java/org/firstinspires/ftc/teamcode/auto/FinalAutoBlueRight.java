@@ -108,9 +108,10 @@ public class FinalAutoBlueRight extends LinearOpMode {
 
                 if (parkNumber == 1 || parkNumber == 2 || parkNumber == 3) {
                     idFound = false;
+                  //  break;
                 }
                 else {
-                    telemetry.addLine("well frick");
+                    telemetry.addLine("not found");
                     telemetry.update();
                 }
             }
@@ -147,18 +148,19 @@ public class FinalAutoBlueRight extends LinearOpMode {
             rotate(-1, -63);
 
             drive.followTrajectory(traj2);
-            rotate(-1, -20);
+            rotate(-1, -10);
             tilt.setPosition(0.55);
+            sleep(500);
             expand(1, 1144);
             closeClaw();
             sleep(500);
             rotate(1, 10);
-            expand(-0.5, -1144);
+            expand(-0.4, -1144);
 
             drive.followTrajectory(traj3);
             traversing(0.7, 80);
-            traversing(0.7, 68);
             rotate(1, 63);
+            traversing(0.7, 68);
             expand(1, 1077);
             sleep(500);
             tilt.setPosition(0.2);
