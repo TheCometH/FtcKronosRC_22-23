@@ -144,7 +144,7 @@ public class FinalAutoBlueRight extends LinearOpMode {
             openClaw();
             sleep(500);
             expand(-0.4, -1067);
-            traversing(-0.7, -148);
+            traversing(-0.7, -138);
             rotate(-1, -63);
 
             drive.followTrajectory(traj2);
@@ -158,7 +158,7 @@ public class FinalAutoBlueRight extends LinearOpMode {
             expand(-0.4, -1144);
 
             drive.followTrajectory(traj3);
-            traversing(0.7, 80);
+            traversing(0.7, 70);
             rotate(1, 63);
             traversing(0.7, 68);
             expand(1, 1077);
