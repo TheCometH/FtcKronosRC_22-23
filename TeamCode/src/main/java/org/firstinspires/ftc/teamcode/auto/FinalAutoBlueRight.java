@@ -61,14 +61,12 @@ public class FinalAutoBlueRight extends LinearOpMode {
                 .build();
 
         Trajectory traj2 = drive.trajectoryBuilder(traj1.end())
-                .strafeRight(7)
-                .build();
-
-        Trajectory traj3 = drive.trajectoryBuilder(traj2.end())
                 .strafeLeft(7)
                 .build();
 
-
+        Trajectory traj3 = drive.trajectoryBuilder(traj2.end())
+                .strafeRight(7)
+                .build();
 
         Trajectory parkTraj = null;
 
@@ -121,12 +119,12 @@ public class FinalAutoBlueRight extends LinearOpMode {
 
             if (parkNumber == 1) {
                 parkTraj = drive.trajectoryBuilder(traj3.end())
-                        .strafeLeft(24)
+                        .strafeRight(24)
                         .build();
             }
             else if (parkNumber == 3) {
                 parkTraj = drive.trajectoryBuilder(traj3.end())
-                        .strafeRight(24)
+                        .strafeLeft(24)
                         .build();
             }
             else {
@@ -136,7 +134,7 @@ public class FinalAutoBlueRight extends LinearOpMode {
 
             drive.followTrajectory(traj1);
             rotate(1, 63);
-            traversing(0.7, 68);
+            traversing(-0.7, -58);
             expand(1, 1077);
             tilt.setPosition(0.2);
             sleep(500);
@@ -144,7 +142,7 @@ public class FinalAutoBlueRight extends LinearOpMode {
             openClaw();
             sleep(500);
             expand(-0.4, -1067);
-            traversing(-0.7, -138);
+            traversing(0.7, 133);
             rotate(-1, -63);
 
             drive.followTrajectory(traj2);
@@ -158,17 +156,18 @@ public class FinalAutoBlueRight extends LinearOpMode {
             expand(-0.4, -1144);
 
             drive.followTrajectory(traj3);
-            traversing(0.7, 70);
+            traversing(-0.7, -70);
             rotate(1, 63);
-            traversing(0.7, 68);
+            traversing(-0.7, -68);
             expand(1, 1077);
-            sleep(500);
             tilt.setPosition(0.2);
+            sleep(500);
             openClaw();
             sleep(500);
             closeClaw();
             sleep(500);
             expand(-0.5, -1077);
+            traversing(0.7, 68);
             rotate(-1, -63);
 
             if (parkNumber == 1 || parkNumber == 3)

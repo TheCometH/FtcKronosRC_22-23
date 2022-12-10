@@ -19,7 +19,7 @@ public class SmoothMovement extends LinearOpMode {
     private DcMotorEx expansion, traverse, rotation;
     private Servo tilt, clamp;
 
-
+    private static double arm_ticks_per_rev = 5281.1 * 2;
 
 
     private Integer positionExpansion = 0;
@@ -59,8 +59,6 @@ public class SmoothMovement extends LinearOpMode {
 
         clamp.setPosition(0);
 
-
-
         leftFront.setDirection(DcMotorSimple.Direction.REVERSE);
         leftRear.setDirection(DcMotorSimple.Direction.REVERSE);
         rightFront.setDirection(DcMotorSimple.Direction.FORWARD);
@@ -79,6 +77,17 @@ public class SmoothMovement extends LinearOpMode {
         expansion.setPower(0);
         rotation.setPower(0);
         traverse.setPower(0);
+
+//        rotation.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+//        rotation.setTargetPosition(rotation.getTargetPosition() - (int)(arm_ticks_per_rev/4));
+//        rotation.setPower(1);
+//
+//        while (rotation.isBusy()){
+//            rotation.setPower(1);
+//        }
+//
+//        rotation.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+//        rotation.setPower(0);
 
 //        leftFront.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 //        leftRear.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
@@ -175,14 +184,14 @@ public class SmoothMovement extends LinearOpMode {
             }
 
             // Forward
-            if (gamepad1.left_stick_y > 0.3) {
+            if (gamepad1.left_stick_y > 0.2) {
                 direction.add("Forward");
                 telemetry.addData("Forward, power", gamepad1.left_stick_y);
                 move(gamepad1.left_stick_y);
             }
 
             // Backward
-            if (gamepad1.left_stick_y < -0.3) {
+            if (gamepad1.left_stick_y < -0.2) {
                 direction.add("Backward");
                 telemetry.addData("Backward, power", gamepad1.left_stick_y);
 
@@ -190,18 +199,18 @@ public class SmoothMovement extends LinearOpMode {
             }
 
             // Right
-            if (gamepad1.left_stick_x < -0.3) {
+            if (gamepad1.right_stick_x < -0.2) {
                 direction.add("Right");
-                telemetry.addData("Right, power", gamepad1.left_stick_x);
-                sides(-gamepad1.left_stick_x);
+                telemetry.addData("Right, power", gamepad1.right_stick_x);
+                sides(-gamepad1.right_stick_x);
 
             }
 
             // Left
-            else if (gamepad1.left_stick_x > 0.3) {
+            else if (gamepad1.right_stick_x > 0.2) {
                 direction.add("Left");
-                telemetry.addData("Left, power", gamepad1.left_stick_x);
-                sides(-gamepad1.left_stick_x);
+                telemetry.addData("Left, power", gamepad1.right_stick_x);
+                sides(-gamepad1.right_stick_x);
             }
 
             // Turn
@@ -367,7 +376,6 @@ public class SmoothMovement extends LinearOpMode {
     private float mtod(){
 
         return -((rotation.getCurrentPosition() - irP) * 360f / help);
-
     }
 
 
@@ -434,7 +442,7 @@ public class SmoothMovement extends LinearOpMode {
     }
 
     public void openClaw() {
-        clamp.setPosition(0.3);
+        clamp.setPosition(0.5);
     }
 
 

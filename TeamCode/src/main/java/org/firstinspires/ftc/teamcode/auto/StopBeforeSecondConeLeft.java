@@ -9,12 +9,13 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.util.ElapsedTime;
 
 import org.firstinspires.ftc.teamcode.auto.cameradetection.CameraDetectionV2;
 import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
 
-@Autonomous(name = "FinalAutoBlueLeft")
-public class FinalAutoBlueLeft extends LinearOpMode {
+@Autonomous(name = "StopBeforeSecondConeLeft")
+public class StopBeforeSecondConeLeft extends LinearOpMode {
 
     int parkNumber = 0;
     boolean idFound = true;
@@ -33,6 +34,9 @@ public class FinalAutoBlueLeft extends LinearOpMode {
 
     HardwareMap hwmap = null;
 
+    private long start;
+
+
     @Override
     public void runOpMode() throws InterruptedException {
 
@@ -48,20 +52,20 @@ public class FinalAutoBlueLeft extends LinearOpMode {
         CameraDetectionV2 camera = new CameraDetectionV2();
 
         Trajectory traj0 = drive.trajectoryBuilder(startPose)
-                .back(11)
+                .back(14)
                 .build();
 
         Trajectory traj1 = drive.trajectoryBuilder(traj0.end())
-                .back(39)
+                .back(36)
                 .build();
 
-        Trajectory traj2 = drive.trajectoryBuilder(traj1.end())
-                .strafeRight(7)
-                .build();
-
-        Trajectory traj3 = drive.trajectoryBuilder(traj2.end())
-                .strafeLeft(7)
-                .build();
+//        Trajectory traj2 = drive.trajectoryBuilder(traj1.end())
+//                .strafeRight(7)
+//                .build();
+//
+//        Trajectory traj3 = drive.trajectoryBuilder(traj2.end())
+//                .strafeLeft(7)
+//                .build();
 
 
 
@@ -83,13 +87,16 @@ public class FinalAutoBlueLeft extends LinearOpMode {
              * The INIT-loop:
              * This REPLACES waitForStart!
              */
-            while (!isStarted() && !isStopRequested() && idFound)
+
+            start = System.currentTimeMillis();
+            while (isStarted() && !isStopRequested() && idFound && (System.currentTimeMillis() - start) < 6000)
             {
                 try {
                     camera.detect();
                 } catch (InterruptedException e) {
                     e.printStackTrace();
                 }
+
                 /*
                  * The START command just came in: now work off the latest snapshot acquired
                  * during the init loop.
@@ -103,6 +110,7 @@ public class FinalAutoBlueLeft extends LinearOpMode {
 
                 if (parkNumber == 1 || parkNumber == 2 || parkNumber == 3) {
                     idFound = false;
+                    break;
                 }
                 else {
                     telemetry.addLine("well frick");
@@ -111,62 +119,69 @@ public class FinalAutoBlueLeft extends LinearOpMode {
             }
             telemetry.addLine("parking spot: " + parkNumber);
             telemetry.update();
-            sleep(3000);
 
             if (parkNumber == 1) {
-                parkTraj = drive.trajectoryBuilder(traj3.end())
-                        .strafeLeft(24)
+                parkTraj = drive.trajectoryBuilder(traj1.end())
+                        .strafeRight(24)
                         .build();
             }
             else if (parkNumber == 3) {
-                parkTraj = drive.trajectoryBuilder(traj3.end())
-                        .strafeRight(24)
+                parkTraj = drive.trajectoryBuilder(traj1.end())
+                        .strafeLeft(24)
                         .build();
             }
             else {
                 telemetry.addLine("No parking spot id detected :D");
                 telemetry.update();
+                parkTraj = drive.trajectoryBuilder(traj1.end())
+                        .forward(1)
+                        .build();
             }
+
+            Trajectory traj2 = drive.trajectoryBuilder(parkTraj.end())
+                    .forward(12)
+                    .build();
 
             drive.followTrajectory(traj1);
             rotate(1, 63);
-            traversing(0.7, 68);
-            expand(1, 1077);
+            traversing(0.7, 63);
+            expand(1, 950);
             tilt.setPosition(0.2);
             sleep(500);
 
             openClaw();
             sleep(500);
-            expand(-0.4, -1067);
-            traversing(-0.7, -133);
-            rotate(-1, -63);
-
-            drive.followTrajectory(traj2);
-            rotate(-1, -10);
-            tilt.setPosition(0.55);
-            expand(1, 1144);
-            closeClaw();
-            sleep(500);
-            rotate(1, 10);
-            expand(-0.4, -1144);
-
-            drive.followTrajectory(traj3);
-            traversing(0.7, 70);
-            rotate(1, 63);
-            traversing(0.7, 68);
-            expand(1, 1077);
-            tilt.setPosition(0.2);
-            openClaw();
-            sleep(500);
-            closeClaw();
-            sleep(500);
-            expand(-0.5, -1077);
-            rotate(-1, -63);
+            expand(-0.4, -940);
             traversing(-0.7, -68);
+            //rotate(-1, -63);
+            rotate(1, 27);
 
+//            drive.followTrajectory(traj2);
+//            rotate(-1, -10);
+//            tilt.setPosition(0.55);
+//            expand(1, 1144);
+//            closeClaw();
+//            sleep(500);
+//            rotate(1, 10);
+//            expand(-0.4, -1144);
+//
+//            drive.followTrajectory(traj3);
+//            traversing(0.7, 70);
+//            rotate(1, 63);
+//            traversing(0.7, 68);
+//            expand(1, 1077);
+//            tilt.setPosition(0.2);
+//            openClaw();
+//            sleep(500);
+//            closeClaw();
+//            sleep(500);
+//            expand(-0.5, -1077);
+//            rotate(-1, -63);
+//            traversing(-0.7, -68);
 
-            if (parkNumber == 1 || parkNumber == 3)
-                drive.followTrajectory(parkTraj);
+            drive.followTrajectory(parkTraj);
+            drive.followTrajectory(traj2);
+            rotate(-1, -90);
 
         }
     }
@@ -267,6 +282,6 @@ public class FinalAutoBlueLeft extends LinearOpMode {
     }
 
     public void openClaw() {
-        clamp.setPosition(0.1);
+        clamp.setPosition(0.5);
     }
 }
