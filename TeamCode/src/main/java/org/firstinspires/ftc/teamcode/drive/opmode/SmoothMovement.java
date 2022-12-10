@@ -57,7 +57,6 @@ public class SmoothMovement extends LinearOpMode {
         tilt = hardwareMap.get(Servo.class, "tilt");
         clamp = hardwareMap.get(Servo.class, "clamp");
 
-        tilt.setPosition(0);
         clamp.setPosition(0);
 
 
@@ -319,14 +318,14 @@ public class SmoothMovement extends LinearOpMode {
             telemetry.addData("tiltPosition: ", tilt.getPosition());
             telemetry.addData("Rotation Position", rotation.getCurrentPosition() - irP);
             telemetry.addData("Expansion Position", expansion.getCurrentPosition() - ieP);
+            telemetry.addData("Traverse Position", traverse.getCurrentPosition() - ieP);
             telemetry.update();
         }
     }
 
 
     public void tiltNow(Float distance) {
-        tiltPosition = tiltPosition + distance;
-        tiltPosition = Range.clip(tiltPosition, 0, 1);
+        tiltPosition = Range.clip((float) tilt.getPosition() + (float) distance, 0, 1);
         tilt.setPosition(tiltPosition);
     }
 
@@ -430,12 +429,12 @@ public class SmoothMovement extends LinearOpMode {
 //        positionTraverse = traverse.getCurrentPosition();
     }
     public void closeClaw() {
-        clamp.setPosition(0.3);
+        clamp.setPosition(0);
 
     }
 
     public void openClaw() {
-        clamp.setPosition(0.6);
+        clamp.setPosition(0.3);
     }
 
 
