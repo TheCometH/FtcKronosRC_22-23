@@ -30,6 +30,7 @@ public class SmoothMovement extends LinearOpMode {
 
     private Float ughOffset =  -30f;
     private int irP;
+    private int ieP;
 
     private int change;
     private int previous;
@@ -107,6 +108,7 @@ public class SmoothMovement extends LinearOpMode {
         traverse.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         irP = rotation.getCurrentPosition();
+        ieP = expansion.getCurrentPosition();
     }
 
     @Override
@@ -148,7 +150,13 @@ public class SmoothMovement extends LinearOpMode {
         while(opModeIsActive()) {
             direction.clear();
 
+            if (!rotation.isBusy()){
+                rotation.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
 
+            }
+            if (!expansion.isBusy()){
+                expansion.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+            }
 
             if (gamepad2.dpad_down){
                 help = help + 10;
@@ -186,7 +194,7 @@ public class SmoothMovement extends LinearOpMode {
             if (gamepad1.left_stick_x < -0.3) {
                 direction.add("Right");
                 telemetry.addData("Right, power", gamepad1.left_stick_x);
-                sides(gamepad1.left_stick_x);
+                sides(-gamepad1.left_stick_x);
 
             }
 
@@ -194,7 +202,7 @@ public class SmoothMovement extends LinearOpMode {
             else if (gamepad1.left_stick_x > 0.3) {
                 direction.add("Left");
                 telemetry.addData("Left, power", gamepad1.left_stick_x);
-                sides(gamepad1.left_stick_x);
+                sides(-gamepad1.left_stick_x);
             }
 
             // Turn
@@ -240,21 +248,31 @@ public class SmoothMovement extends LinearOpMode {
                 traverse.setPower(0);
             }
 
+            telemetry.addData("triggerl", gamepad2.left_trigger);
+            if (gamepad2.left_trigger>0 && !(rotation.isBusy() || expansion.isBusy())){
+                goToPosition(931, 867);
+            }
+            else if (gamepad2.right_trigger > 0 && !(rotation.isBusy() || expansion.isBusy())){
+                goToPosition(-1633, 1272);
+            }
+
             // Expand Forward
-            if (gamepad2.right_stick_x > 0.4) {
-                telemetry.addData("Expand, power", -gamepad2.left_stick_x);
-                expand(-gamepad2.left_stick_x + 0.6, -288);
+            if (gamepad2.right_stick_y > 0.4) {
+                telemetry.addData("Expand, power", gamepad2.right_stick_y);
+                expand(-gamepad2.right_stick_y, -288);
             }
 
             // Expand Backward
-            else if(gamepad2.right_stick_x < -0.4) {
-                telemetry.addData("Expand, power", -gamepad2.left_stick_x);
-                expand(-gamepad2.left_stick_x - 0.6, -288);
+            else if(gamepad2.right_stick_y < -0.4) {
+                telemetry.addData("Expand, power", gamepad2.right_stick_y);
+                expand(-gamepad2.right_stick_y , -288);
             }
 
             // Stop expand
             else {
-                expansion.setPower(0);
+                if (!expansion.isBusy()) {
+                    expansion.setPower(0);
+                }
             }
 
             // Rotate Right
@@ -271,7 +289,9 @@ public class SmoothMovement extends LinearOpMode {
 
             // Stop rotate
             else {
-                rotation.setPower(0);
+                if (!rotation.isBusy()) {
+                    rotation.setPower(0);
+                }
             }
 
 
@@ -297,7 +317,8 @@ public class SmoothMovement extends LinearOpMode {
             }
 
             telemetry.addData("tiltPosition: ", tilt.getPosition());
-            telemetry.addData("Rotation Position", rotation.getCurrentPosition());
+            telemetry.addData("Rotation Position", rotation.getCurrentPosition() - irP);
+            telemetry.addData("Expansion Position", expansion.getCurrentPosition() - ieP);
             telemetry.update();
         }
     }
@@ -309,7 +330,20 @@ public class SmoothMovement extends LinearOpMode {
         tilt.setPosition(tiltPosition);
     }
 
+    public void goToPosition(int rotationPos, int expansionPos) {
+        rotation.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        expansion.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 
+        rotation.setTargetPosition(rotationPos + irP);
+        expansion.setTargetPosition(expansionPos + ieP);
+
+        rotation.setPower(1);
+        expansion.setPower(1);
+
+        while (rotation.isBusy() || expansion.isBusy()){
+
+        }
+    }
 
 
 
