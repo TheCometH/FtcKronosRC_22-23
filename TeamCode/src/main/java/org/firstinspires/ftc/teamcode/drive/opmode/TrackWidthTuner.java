@@ -63,7 +63,6 @@ public class TrackWidthTuner extends LinearOpMode {
                 double heading = drive.getPoseEstimate().getHeading();
                 headingAccumulator += Angle.normDelta(heading - lastHeading);
                 lastHeading = heading;
-
                 drive.update();
             }
 

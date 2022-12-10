@@ -1,28 +1,24 @@
 package org.firstinspires.ftc.teamcode.drive.opmode;
 
 
-import com.acmerobotics.roadrunner.drive.Drive;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.Servo;
-import com.qualcomm.robotcore.util.ElapsedTime;
 import com.qualcomm.robotcore.util.Range;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 import java.util.ArrayList;
 import java.util.List;
 
-import org.firstinspires.ftc.teamcode.drive.SampleMecanumDrive;
-import org.opencv.core.Mat;
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
-import java.util.Arrays;
-
-@com.qualcomm.robotcore.eventloop.opmode.TeleOp(name = "polkioplkioplk")
-public class TeleOp extends LinearOpMode {
+@TeleOp(name = "bob")
+public class SmoothMovement extends LinearOpMode {
     private DcMotorEx leftFront, leftRear, rightRear, rightFront;
     private DcMotorEx expansion, traverse, rotation;
     private Servo tilt, clamp;
+
 
 
 
@@ -31,8 +27,16 @@ public class TeleOp extends LinearOpMode {
     private Integer positionTraverse = 0;
 
     private Float tiltPosition = 0f;
-    boolean toggleparallel = true;
 
+    private Float ughOffset =  -30f;
+    private int irP;
+    private int ieP;
+
+    private int change;
+    private int previous;
+    private Boolean servoAutoThing = true;
+
+    public Float help = 17130.2f;
 
 
     HardwareMap hwMap = null;
@@ -41,6 +45,8 @@ public class TeleOp extends LinearOpMode {
         telemetry.addLine("init starting");
         telemetry.update();
         leftFront = hardwareMap.get(DcMotorEx.class, "leftFront");
+
+
         leftRear = hardwareMap.get(DcMotorEx.class, "leftRear");
         rightRear = hardwareMap.get(DcMotorEx.class, "rightRear");
         rightFront = hardwareMap.get(DcMotorEx.class, "rightFront");
@@ -51,7 +57,6 @@ public class TeleOp extends LinearOpMode {
         tilt = hardwareMap.get(Servo.class, "tilt");
         clamp = hardwareMap.get(Servo.class, "clamp");
 
-        tilt.setPosition(0.705);
         clamp.setPosition(0);
 
 
@@ -83,7 +88,8 @@ public class TeleOp extends LinearOpMode {
 //        rotation.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 //        traverse.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
 //
-        rotation.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
+
+
 //        expansion.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 //        traverse.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
 
@@ -100,10 +106,14 @@ public class TeleOp extends LinearOpMode {
         rotation.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         traverse.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
+        irP = rotation.getCurrentPosition();
+        ieP = expansion.getCurrentPosition();
     }
 
     @Override
     public void runOpMode() {
+
+
 
         init(hardwareMap);
         telemetry.addLine("init done");
@@ -114,32 +124,64 @@ public class TeleOp extends LinearOpMode {
         telemetry.update();
 
         List<String> direction = new ArrayList<String>();
+        Boolean isPivoting = false;
+        Boolean isArm = false;
 
+
+        /**
+         *  Gamepad 1:
+         *      Left stick;
+         *          y: Chassis back and forth, x: Chassis left and right
+         *      Bumper:
+         *          Chassis turn left, right
+         *  Gamepad 2:
+         *      A: Close Claw
+         *      B: Open Claw
+         *      Left stick:
+         *          x: Traverse left and right, y: Rotate right and left
+         *      Right stick:
+         *          x: Expand and Retract
+         *      Bumper:0
+         *          Left: tilt
+         *
+         * **/
 
         while(opModeIsActive()) {
+            direction.clear();
 
-            if(gamepad2.x){
-                //switch bool vlaue of toggle value
-                if(toggleparallel){
-                    toggleparallel = false;
-                } else{
-                    toggleparallel = true;
-                }
+            if (!rotation.isBusy()){
+                rotation.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
+
+            }
+            if (!expansion.isBusy()){
+                expansion.setMode(DcMotor.RunMode.RUN_WITHOUT_ENCODER);
             }
 
-            if(toggleparallel) {
-                if (rotation.getCurrentPosition() <= 600) {
-                    tilt.setPosition(0.705 - (rotation.getCurrentPosition() * 0.56033) / 600.0);
-                }
+            if (gamepad2.dpad_down){
+                help = help + 10;
+            }
+            if (gamepad2.dpad_up){
+                help = help - 10;
+            }
+            if (gamepad2.y){
+                servoAutoThing = false;
+            }
+            if (gamepad2.x){
+                servoAutoThing = true;
             }
 
+            if (servoAutoThing){
+                godHelpMe();
+            }
+
+            // Forward
             if (gamepad1.left_stick_y > 0.3) {
                 direction.add("Forward");
                 telemetry.addData("Forward, power", gamepad1.left_stick_y);
-
                 move(gamepad1.left_stick_y);
             }
 
+            // Backward
             if (gamepad1.left_stick_y < -0.3) {
                 direction.add("Backward");
                 telemetry.addData("Backward, power", gamepad1.left_stick_y);
@@ -147,116 +189,159 @@ public class TeleOp extends LinearOpMode {
                 move(gamepad1.left_stick_y);
             }
 
-
-            if (gamepad1.left_stick_x > 0.3) {
+            // Right
+            if (gamepad1.left_stick_x < -0.3) {
                 direction.add("Right");
                 telemetry.addData("Right, power", gamepad1.left_stick_x);
-                sides(gamepad1.left_stick_x);
+                sides(-gamepad1.left_stick_x);
 
             }
 
-            else if (gamepad1.left_stick_x < -0.3) {
+            // Left
+            else if (gamepad1.left_stick_x > 0.3) {
                 direction.add("Left");
                 telemetry.addData("Left, power", gamepad1.left_stick_x);
-                sides(gamepad1.left_stick_x);
+                sides(-gamepad1.left_stick_x);
             }
 
-
+            // Turn
             if(gamepad1.right_bumper) {
+
+                direction.add("TURN");
+                turning(-1);
+
+            }
+
+            // Turn
+            else if(gamepad1.left_bumper) {
                 direction.add("TURN");
 
                 turning(1);
             }
-            else if(gamepad1.left_bumper) {
-                direction.add("TURN");
 
-                turning(-1);
-            }
-
-
+            // Open Claw
             if(gamepad2.a) {
                 openClaw();
             }
+
+            // Close Claw
             if(gamepad2.b) {
                 closeClaw();
                 // unknown distance
             }
 
-
-            if(gamepad2.left_stick_x > 0.4) {
+            // Traverse Right
+            if(gamepad2.left_stick_x > 0.2) {
                 telemetry.addData("Traverse right, power", gamepad2.left_stick_x);
                 traversing(gamepad2.left_stick_x, 72);
             }
 
-
-            if(gamepad2.left_stick_x < -0.4) {
+            // Traverse Left
+            else if(gamepad2.left_stick_x < -0.2) {
                 telemetry.addData("Traverse left, power", gamepad2.left_stick_x);
                 traversing(gamepad2.left_stick_x, -72);
             }
 
-
-            if (gamepad2.right_stick_x > 0.4) {
-                direction.add("expand");
-                telemetry.addData("Expand, power", -gamepad2.left_stick_x);
-
-                expand(-gamepad2.left_stick_x + 0.25, -288);
+            // Traverse Stop
+            else {
+                traverse.setPower(0);
             }
-            if(gamepad2.right_stick_x < -0.4) {
-                direction.add("expand");
-                telemetry.addData("Expand, power", -gamepad2.left_stick_x);
 
-                expand(-gamepad2.left_stick_x - 0.25, -288);
+            telemetry.addData("triggerl", gamepad2.left_trigger);
+            if (gamepad2.left_trigger>0 && !(rotation.isBusy() || expansion.isBusy())){
+                goToPosition(931, 867);
             }
+            else if (gamepad2.right_trigger > 0 && !(rotation.isBusy() || expansion.isBusy())){
+                goToPosition(-1633, 1272);
+            }
+
+            // Expand Forward
+            if (gamepad2.right_stick_y > 0.4) {
+                telemetry.addData("Expand, power", gamepad2.right_stick_y);
+                expand(-gamepad2.right_stick_y, -288);
+            }
+
+            // Expand Backward
+            else if(gamepad2.right_stick_y < -0.4) {
+                telemetry.addData("Expand, power", gamepad2.right_stick_y);
+                expand(-gamepad2.right_stick_y , -288);
+            }
+
+            // Stop expand
+            else {
+                if (!expansion.isBusy()) {
+                    expansion.setPower(0);
+                }
+            }
+
+            // Rotate Right
             if(gamepad2.left_stick_y > 0.4) {
-                direction.add("rotate");
                 telemetry.addData("Rotate right, power", gamepad2.left_stick_y);
-
                 rotate((double)gamepad2.left_stick_y, 288);
             }
-            if(gamepad2.left_stick_y < -0.4) {
-                direction.add("rotate");
-                telemetry.addData("Rotate left, power", gamepad2.left_stick_y);
 
+            // Rotate Left
+            else if(gamepad2.left_stick_y < -0.4) {
+                telemetry.addData("Rotate left, power", gamepad2.left_stick_y);
                 rotate((double)gamepad2.left_stick_y, -288);
             }
 
-            if(!toggleparallel){
-                if (gamepad2.left_bumper) {
-                    tiltNow(0.003f);
-                    telemetry.addData("Tilt", tilt.getPosition());
+            // Stop rotate
+            else {
+                if (!rotation.isBusy()) {
+                    rotation.setPower(0);
                 }
-                if (gamepad2.right_bumper) {
-                    tiltNow(-0.003f);
-                    telemetry.addData("Tilt", tilt.getPosition());
+            }
 
-            }}
+
+            // Tilt Up or down idk
+            if (gamepad2.left_bumper) {
+                tiltNow(0.003f);
+                telemetry.addData("Tilt", tilt.getPosition());
+            }
+
+            // Tilt Up or down idk
+            if (gamepad2.right_bumper) {
+                tiltNow(-0.003f);
+                telemetry.addData("Tilt", tilt.getPosition());
+
+            }
 
             if (direction.isEmpty()) {
                 leftFront.setPower(0);
                 leftRear.setPower(0);
                 rightFront.setPower(0);
                 rightRear.setPower(0);
-                expansion.setPower(0);
-                rotation.setPower(0);
-                traverse.setPower(0);
 
             }
 
             telemetry.addData("tiltPosition: ", tilt.getPosition());
-            telemetry.addData("Rotation Position", rotation.getCurrentPosition());
-            telemetry.addData("Expansion Position", expansion.getCurrentPosition());
-//            telemetry.addData("random number");
-//            telemetry.addData("why", );
+            telemetry.addData("Rotation Position", rotation.getCurrentPosition() - irP);
+            telemetry.addData("Expansion Position", expansion.getCurrentPosition() - ieP);
+            telemetry.addData("Traverse Position", traverse.getCurrentPosition() - ieP);
             telemetry.update();
         }
     }
 
 
     public void tiltNow(Float distance) {
-        tiltPosition = tiltPosition + distance;
-        telemetry.addData("tiltPosition: ", tiltPosition);
-        telemetry.update();
+        tiltPosition = Range.clip((float) tilt.getPosition() + (float) distance, 0, 1);
         tilt.setPosition(tiltPosition);
+    }
+
+    public void goToPosition(int rotationPos, int expansionPos) {
+        rotation.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+        expansion.setMode(DcMotor.RunMode.RUN_USING_ENCODER);
+
+        rotation.setTargetPosition(rotationPos + irP);
+        expansion.setTargetPosition(expansionPos + ieP);
+
+        rotation.setPower(1);
+        expansion.setPower(1);
+
+        while (rotation.isBusy() || expansion.isBusy()){
+
+        }
     }
 
 
@@ -277,6 +362,25 @@ public class TeleOp extends LinearOpMode {
 //            rotation.setMode(DcMotor.RunMode.RUN_TO_POSITION);
         rotation.setPower(power);
 //            positionRotation = rotation.getCurrentPosition();
+    }
+
+    private float mtod(){
+
+        return -((rotation.getCurrentPosition() - irP) * 360f / help);
+
+    }
+
+
+
+    private void godHelpMe(){
+
+        tilt.setPosition((90f - mtod()) / 180f);
+
+
+    }
+    private void godHelpMe2(){
+        tilt.setPosition((90f + mtod()) / 180f);
+
     }
 
     public void expand(double power, int targetPosition){
@@ -325,12 +429,12 @@ public class TeleOp extends LinearOpMode {
 //        positionTraverse = traverse.getCurrentPosition();
     }
     public void closeClaw() {
-        clamp.setPosition(0.3);
+        clamp.setPosition(0);
 
     }
 
     public void openClaw() {
-        clamp.setPosition(0.6);
+        clamp.setPosition(0.3);
     }
 
 

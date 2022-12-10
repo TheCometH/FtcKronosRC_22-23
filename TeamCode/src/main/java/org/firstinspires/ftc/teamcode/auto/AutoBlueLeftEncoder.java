@@ -1,7 +1,9 @@
 package org.firstinspires.ftc.teamcode.auto;
 
 import android.graphics.HardwareRenderer;
+import android.graphics.drawable.GradientDrawable;
 
+import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
@@ -9,6 +11,7 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
 import com.qualcomm.robotcore.hardware.DcMotorSimple;
 import com.qualcomm.robotcore.hardware.HardwareMap;
 
+import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import org.firstinspires.ftc.teamcode.auto.cameradetection.CameraDetectionV2;
 
 @Autonomous(name = "AutoBlueLeftEncoder")
@@ -19,8 +22,12 @@ public class AutoBlueLeftEncoder extends LinearOpMode {
     DcMotorEx rightFront;
     DcMotorEx rightRear;
 
-    static double wheelCircumference = 2 * 1.8898 * Math.PI;
-    static double ticks_per_rev = 537.6;
+    BNO055IMU imu;
+
+    Orientation angles;
+
+    static double wheelCircumference = 3.78 * Math.PI;
+    static double wheel_ticks_per_rev = 537.7 * 2;
     static double rotations;
     static int ticks;
 
@@ -50,6 +57,7 @@ public class AutoBlueLeftEncoder extends LinearOpMode {
         rightFront.setPower(0);
         rightRear.setPower(0);
 
+        /*
         CameraDetectionV2 camera = new CameraDetectionV2();
         camera.initTele(telemetry);
         camera.initCamera(hardwareMap);
@@ -59,10 +67,12 @@ public class AutoBlueLeftEncoder extends LinearOpMode {
         //Initialize park to receive parking location
         int parkNumber = camera.check();
 
+
+         */
         straight(1.0, distance(12));
         sleep(3000);
         telemetry.clearAll();
-        if(parkNumber == 1) {
+        /*if(parkNumber == 1) {
             telemetry.addLine("1");
             telemetry.update();
         } else if (parkNumber == 2) {
@@ -74,7 +84,7 @@ public class AutoBlueLeftEncoder extends LinearOpMode {
         } else {
             telemetry.addLine("0");
             telemetry.update();
-        }
+        }*/
         straight(1.0, distance(40));
     }
 
@@ -197,7 +207,7 @@ public class AutoBlueLeftEncoder extends LinearOpMode {
 
     public int distance(double inches) {
         rotations = inches/wheelCircumference;
-        ticks = (int) (rotations * ticks_per_rev);
+        ticks = (int) (rotations * wheel_ticks_per_rev);
         return ticks;
     }
 }
