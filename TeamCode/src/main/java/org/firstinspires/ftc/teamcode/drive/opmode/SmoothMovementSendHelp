@@ -26,7 +26,7 @@ public class SmoothMovementSendHelp extends LinearOpMode {
     private Integer positionRotation = 0;
     private Integer positionTraverse = 0;
 
-    private Float tiltPosition = 0f;
+    private double tiltPosition = 0f;
 
     private Float ughOffset =  -30f;
     private int irP;
@@ -58,7 +58,6 @@ public class SmoothMovementSendHelp extends LinearOpMode {
         tilt = hardwareMap.get(Servo.class, "tilt");
         clamp = hardwareMap.get(Servo.class, "clamp");
 
-        tilt.setPosition(0);
         clamp.setPosition(0);
 
 
@@ -318,7 +317,7 @@ public class SmoothMovementSendHelp extends LinearOpMode {
 
     public void tiltNow(Float distance) {
         tiltPosition = tiltPosition + distance;
-        tiltPosition = Range.clip(tiltPosition, 0, 1);
+        tiltPosition = Range.clip(tilt.getPosition() + distance, 0, 1);
         tilt.setPosition(tiltPosition);
     }
 
