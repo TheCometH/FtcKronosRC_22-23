@@ -348,8 +348,8 @@ public class SmoothMovement extends LinearOpMode {
             telemetry.addData("Traverse Position", traverse.getCurrentPosition() - ieP);
             telemetry.update();
 
-            prev_val_y = gamepad1.left_stick_y;
-            prev_val_x = gamepad1.left_stick_x;
+            prev_val_y = current_val_y;
+            prev_val_x = current_val_x;
         }
     }
 
