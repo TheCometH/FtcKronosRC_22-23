@@ -25,7 +25,7 @@ public class SmoothMovement extends LinearOpMode {
     Float prev_val_y = 0.0f;
     Float current_val_y;
 
-    final Float rate_limiter = 0.1f;
+    final Float rate_limiter = 0.3f;
 
     private static double arm_ticks_per_rev = 5281.1 * 2;
 
@@ -196,7 +196,7 @@ public class SmoothMovement extends LinearOpMode {
             }
 
             // Forward
-            if (gamepad1.left_stick_y > 0.1) {
+            if (gamepad1.left_stick_y > 0.3) {
                 if (current_val_y > prev_val_y + rate_limiter) {
                     current_val_y = prev_val_y + rate_limiter;
 
@@ -204,7 +204,7 @@ public class SmoothMovement extends LinearOpMode {
                 direction.add("Forward");
                 telemetry.addData("Forward, power", current_val_y);
                 move(current_val_y);
-            } else if (gamepad1.left_stick_y < -0.1) {
+            } else if (gamepad1.left_stick_y < -0.3) {
                 if (current_val_y < prev_val_y - rate_limiter) {
                     current_val_y = prev_val_y - rate_limiter;
 
@@ -213,7 +213,7 @@ public class SmoothMovement extends LinearOpMode {
                 telemetry.addData("Backward, power", current_val_y);
 
                 move(current_val_y);
-            } else if (gamepad1.right_stick_x < -0.1) {
+            } else if (gamepad1.right_stick_x < -0.3) {
                 if (current_val_x < prev_val_x - rate_limiter) {
                     current_val_x = prev_val_x - rate_limiter;
 
@@ -222,7 +222,7 @@ public class SmoothMovement extends LinearOpMode {
                 telemetry.addData("Right, power", current_val_x);
                 sides(-current_val_x);
 
-            } else if (gamepad1.right_stick_x > 0.1) {
+            } else if (gamepad1.right_stick_x > 0.3) {
                 if (current_val_x > prev_val_x + rate_limiter) {
                     current_val_x = prev_val_x + rate_limiter;
                 }
