@@ -19,17 +19,21 @@ public class AutoBlueRight_v2 extends LinearOpMode {
 
         //Creates a CameraDetection object to detect the id and return a value for parking
         /*CameraDetection camera = new CameraDetection();
+
         camera.init();
         camera.detect();
         camera.update();
 
         //Initialize park to receive parking location
         int park = camera.check();*/
+        
         int park = 0;
         //Calls SampleMecanumDrive to initialize the motors and use the methods.
+        // CREATES A SAMPLE MECANUM DRIVE
         SampleMecanumDrive drive = new SampleMecanumDrive(hardwareMap);
 
         //Creates initial position of the robot based on the back center of the robot
+        
         Pose2d startPose = new Pose2d(-72, -36, Math.toRadians(0));
         drive.setPoseEstimate(startPose);
 
