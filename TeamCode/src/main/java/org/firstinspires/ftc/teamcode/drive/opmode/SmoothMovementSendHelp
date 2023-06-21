@@ -1,6 +1,6 @@
 package org.firstinspires.ftc.teamcode.drive.opmode;
 
-
+// IMPORTS
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -15,13 +15,15 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 @TeleOp(name = "bobb")
 public class SmoothMovementSendHelp extends LinearOpMode {
+
+    // DEFINING MOTORS AND SERVOS
     private DcMotorEx leftFront, leftRear, rightRear, rightFront;
     private DcMotorEx expansion, traverse, rotation;
     private Servo tilt, clamp;
 
 
 
-
+    // DEFINING INTEGERS AND FLOATS
     private Integer positionExpansion = 0;
     private Integer positionRotation = 0;
     private Integer positionTraverse = 0;
@@ -37,12 +39,13 @@ public class SmoothMovementSendHelp extends LinearOpMode {
     private int previous;
     private Boolean servoAutoThing = true;
 
+    // STEPS IN ONE ROTATION FOR THE MOTORS WE USED
     public Float help = 17130.2f;
 
 
-    HardwareMap hwMap = null;
-
     public void init(HardwareMap hardwareMap) {
+
+        // GETTING MOTOR/SERVO STUFF FROM HARDWARE MAP
         telemetry.addLine("init starting");
         telemetry.update();
         leftFront = hardwareMap.get(DcMotorEx.class, "leftFront");
@@ -58,10 +61,11 @@ public class SmoothMovementSendHelp extends LinearOpMode {
         tilt = hardwareMap.get(Servo.class, "tilt");
         clamp = hardwareMap.get(Servo.class, "clamp");
 
+        // SETTING POSITION OF SERVOS
         clamp.setPosition(0);
 
 
-
+        // SETTING DIRECTION OF MOTORS
         leftFront.setDirection(DcMotorSimple.Direction.REVERSE);
         leftRear.setDirection(DcMotorSimple.Direction.REVERSE);
         rightFront.setDirection(DcMotorSimple.Direction.FORWARD);
@@ -73,6 +77,7 @@ public class SmoothMovementSendHelp extends LinearOpMode {
         tilt.setDirection(Servo.Direction.FORWARD);
         clamp.setDirection(Servo.Direction.FORWARD);
 
+        // 
         leftFront.setPower(0);
         leftRear.setPower(0);
         rightFront.setPower(0);
@@ -98,7 +103,7 @@ public class SmoothMovementSendHelp extends LinearOpMode {
 //        positionRotation = rotation.getCurrentPosition();
 //        positionTraverse = traverse.getCurrentPosition();
 
-
+        // TELLS THE THING WHAT TO DO WITHOUT POWER
         leftFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         leftRear.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         rightFront.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
@@ -107,6 +112,7 @@ public class SmoothMovementSendHelp extends LinearOpMode {
         rotation.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
         traverse.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
+        // GETS CURRENT POSITION OF THE SERVOS
         irP = rotation.getCurrentPosition();
         ieP = expansion.getCurrentPosition();
         itP = traverse.getCurrentPosition();
@@ -116,15 +122,17 @@ public class SmoothMovementSendHelp extends LinearOpMode {
     public void runOpMode() {
 
 
-
+        // RUNS THE INIT WITH PARAMETER HARDWARE MAP
         init(hardwareMap);
+        // CONSOLE WRITING
         telemetry.addLine("init done");
         telemetry.update();
 
+        // WAITS FOR PERSON TO HIT RUN
         waitForStart();
         telemetry.addLine("starting now");
         telemetry.update();
-
+    
         List<String> direction = new ArrayList<String>();
         Boolean isPivoting = false;
         Boolean isArm = false;
@@ -149,9 +157,11 @@ public class SmoothMovementSendHelp extends LinearOpMode {
          * **/
 
         while(opModeIsActive()) {
+
+            // WE GOTTA CHANGE THE DIRECTION STUFF NEXT YEAR
             direction.clear();
 
-
+            // TURNS STUFF ON AND OFF WHEN BUTTONS ARE CLICKED
             if (gamepad2.y){
                 servoAutoThing = false;
             }
@@ -163,6 +173,7 @@ public class SmoothMovementSendHelp extends LinearOpMode {
                 godHelpMe();
             }
 
+            // READS VALUES OF GAMEPAD STICKS AND DOES STUFF WHEN STICK IS MOVED
             // Forward
             if (gamepad1.left_stick_y > 0.3) {
                 direction.add("Forward");
@@ -237,12 +248,14 @@ public class SmoothMovementSendHelp extends LinearOpMode {
             }
 
             // lower
+            // THIS DIDNT WORK
             telemetry.addData("triggerl", gamepad2.left_trigger);
             if (gamepad2.left_trigger>0 && !(rotation.isBusy() || expansion.isBusy() || traverse.isBusy())){
                 goToPosition(2031, 667, 0);
             }
 
             // upper
+            // THIS ALSO DIDNT WORK
             else if (gamepad2.right_trigger > 0 && !(rotation.isBusy() || expansion.isBusy() || traverse.isBusy())){
                 goToPosition(-1633, 1272, 5200);
             }
@@ -396,6 +409,7 @@ public class SmoothMovementSendHelp extends LinearOpMode {
 //            positionRotation = rotation.getCurrentPosition();
     }
 
+    // TURNS ROTATION POSITION INTO DEGREES 
     private float mtod(){
 
         return -((rotation.getCurrentPosition() - irP) * 360f / help);
@@ -403,18 +417,20 @@ public class SmoothMovementSendHelp extends LinearOpMode {
     }
 
 
-
+    
     private void godHelpMe(){
 
         tilt.setPosition((90f - mtod()) / 180f);
 
 
     }
+    // HORIZONTAL THING
     private void godHelpMe2(){
         tilt.setPosition((90f + mtod()) / 180f);
 
     }
 
+    
     public void expand(double power, int targetPosition){
         telemetry.addData("expand function being called", power);
         telemetry.update();
@@ -468,12 +484,13 @@ public class SmoothMovementSendHelp extends LinearOpMode {
 
     }
 
+    // SETS POSITION OF CLAMP SERVO
     public void openClaw() {
         clamp.setPosition(0.6);
     }
 
 
-
+    // SETS POWER OF MOTORS TO MOVE MOTORS
     public void move(double power){
         rightFront.setPower(power);
         rightRear.setPower(power);
